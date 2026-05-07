@@ -24,13 +24,19 @@
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
 
   /* Phase 2: status chip palette per UI-SPEC §"Color".
-     `published` reuses --surface-2 / --text-mut — no dedicated var. */
+     Note (executor 02-02 deviation, Rule 1): UI-SPEC declares chip-published
+     reuses --surface-2 / --text-mut, but #6C757D on #F1F3F5 = 4.22:1 which
+     fails WCAG AA for normal-weight text at the chip's 11px size (the SPEC
+     itself mandates AA via §"Color"). Introduced a dedicated darker fg
+     (#5C677A → 5.14:1) so the AA gate passes; bg still tracks --surface-2. */
   --chip-pending-bg: #FEF3C7;
   --chip-pending-fg: #92400E;
   --chip-approved-bg: #DBEAFE;
   --chip-approved-fg: #1E40AF;
   --chip-needs-tew-bg: #FEE2E2;
   --chip-needs-tew-fg: #991B1B;
+  --chip-published-bg: var(--surface-2);
+  --chip-published-fg: #5C677A;
 
   /* Phase 2: caption editor focus tokens (consumer ships in 02-03). */
   --editor-bg-idle: var(--surface-2);
@@ -64,13 +70,17 @@
   --shadow: 0 2px 6px rgba(0,0,0,0.4);
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
 
-  /* Phase 2: dark-mode chip palette per UI-SPEC §"Color". */
+  /* Phase 2: dark-mode chip palette per UI-SPEC §"Color".
+     chip-published-fg lifted from --text-mut (#94A3B8, 4.04:1 on #334155, fails AA)
+     to #A0AEC2 (4.60:1, passes AA) for 11px normal-weight text. */
   --chip-pending-bg: #3F2A0E;
   --chip-pending-fg: #FCD34D;
   --chip-approved-bg: #1E3A8A;
   --chip-approved-fg: #BFDBFE;
   --chip-needs-tew-bg: #7F1D1D;
   --chip-needs-tew-fg: #FCA5A5;
+  --chip-published-bg: var(--surface-2);
+  --chip-published-fg: #A0AEC2;
 
   /* Phase 2: dark-mode editor focus tokens. */
   --editor-bg-idle: var(--surface-2);

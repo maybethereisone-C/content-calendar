@@ -8,6 +8,7 @@
  *   - aria-label = platform string (so screen readers announce it).
  *   - icon child rendered inline with aria-hidden.
  */
+import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
 import { ChannelBadge } from '@/app/_components/channel-badge'
 

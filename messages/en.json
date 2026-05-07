@@ -9,8 +9,8 @@
   "calendar": {
     "emptyState": "Your content calendar will appear here once posts are ready for review.",
     "emptyStateBody": "Tew will prepare posts soon",
-    "sectionNeedsReview": "Needs review",
-    "sectionApproved": "Approved"
+    "sectionNeedsReview": "ต้องตรวจ",
+    "sectionApproved": "อนุมัติแล้ว"
   },
   "post": {
     "placeholder": "Post details will appear here in the next update.",

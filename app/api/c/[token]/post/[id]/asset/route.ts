@@ -252,10 +252,19 @@ export async function POST(
     .select('id, storage_path, role, sort_order, aspect_ratio')
     .single()
 
-  if (
-    firstAttempt.error &&
-    (firstAttempt.error as { code?: string; message?: string }).code === '42703'
-  ) {
+  // PostgREST returns multiple shapes when aspect_ratio is missing:
+  //   - 42703 from raw Postgres "column does not exist"
+  //   - PGRST204 from PostgREST schema-cache mismatch
+  //   - bare message "Could not find the 'aspect_ratio' column ... in the schema cache"
+  // Match any of them so the retry kicks in.
+  const firstErrCode = (firstAttempt.error as { code?: string } | null)?.code
+  const firstErrMsg =
+    (firstAttempt.error as { message?: string } | null)?.message ?? ''
+  const aspectColumnMissing =
+    firstErrCode === '42703' ||
+    firstErrCode === 'PGRST204' ||
+    /aspect_ratio/i.test(firstErrMsg)
+  if (firstAttempt.error && aspectColumnMissing) {
     // Migration 0002 not applied yet — retry without aspect_ratio.
     logger.warn({
       msg: 'aspect_ratio_column_missing_retrying',

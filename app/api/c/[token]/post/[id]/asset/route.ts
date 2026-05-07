@@ -214,8 +214,24 @@ export async function POST(
     )
   }
 
-  // Insert post_assets row. aspect_ratio column added in 0002_storage.sql.
-  const { data: asset, error: insertErr } = await supabaseAdmin
+  // Insert post_assets row. aspect_ratio column added in migration
+  // 0002_storage.sql; if the column doesn't exist yet (BLOCKED-AWAITING-TEW
+  // per Plan 02-01 SUMMARY), retry the insert WITHOUT aspect_ratio so uploads
+  // still succeed. The gallery defaults to '4:5' for null aspect_ratio rows
+  // (matches W4 SUMMARY defensive pattern). Once 0002 lands, both branches
+  // succeed and aspect_ratio gets persisted.
+  let asset:
+    | {
+        id: string
+        storage_path: string
+        role: string
+        sort_order: number
+        aspect_ratio: '1:1' | '4:5' | null
+      }
+    | null = null
+  let insertErr: { message?: string; code?: string } | null = null
+
+  const firstAttempt = await supabaseAdmin
     .from('post_assets')
     .insert({
       post_id: postId,
@@ -227,6 +243,50 @@ export async function POST(
     })
     .select('id, storage_path, role, sort_order, aspect_ratio')
     .single()
+
+  if (
+    firstAttempt.error &&
+    (firstAttempt.error as { code?: string; message?: string }).code === '42703'
+  ) {
+    // Migration 0002 not applied yet — retry without aspect_ratio.
+    logger.warn({
+      msg: 'aspect_ratio_column_missing_retrying',
+      action: 'uploadAsset',
+      post_id: postId,
+    })
+    const retry = await supabaseAdmin
+      .from('post_assets')
+      .insert({
+        post_id: postId,
+        client_id: clientId,
+        storage_path: storagePath,
+        role: 'client_added',
+        sort_order: 999,
+      })
+      .select('id, storage_path, role, sort_order')
+      .single()
+    if (retry.error || !retry.data) {
+      insertErr = retry.error as { message?: string; code?: string } | null
+    } else {
+      const r = retry.data as {
+        id: string
+        storage_path: string
+        role: string
+        sort_order: number
+      }
+      asset = { ...r, aspect_ratio: null }
+    }
+  } else if (firstAttempt.error || !firstAttempt.data) {
+    insertErr = firstAttempt.error as { message?: string; code?: string } | null
+  } else {
+    asset = firstAttempt.data as unknown as {
+      id: string
+      storage_path: string
+      role: string
+      sort_order: number
+      aspect_ratio: '1:1' | '4:5' | null
+    }
+  }
 
   if (insertErr || !asset) {
     // Roll back the storage upload — keep DB and Storage consistent.

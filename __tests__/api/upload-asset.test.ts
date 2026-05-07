@@ -449,6 +449,69 @@ describe('POST /api/c/[token]/post/[id]/asset', () => {
     expect(mockState.insertedEvent).toBeNull()
   })
 
+  it('11. aspect_ratio column missing (42703) → retry insert without aspect_ratio → 200 + asset.aspect_ratio=null', async () => {
+    mockState.postFetchResp = {
+      data: { id: VALID_POST_ID, client_id: 'client-1', status: 'pending_review' },
+      error: null,
+    }
+    // First attempt: 42703; second (retry): success without aspect_ratio
+    let attempt = 0
+    mockState.assetInsertResp = { data: null, error: null } // unused; we override below
+
+    // Override the supabaseAdmin.from('post_assets').insert chain to switch responses
+    const { supabaseAdmin } = await import('@/lib/supabase/server')
+    const origFrom = supabaseAdmin.from
+    ;(supabaseAdmin as { from: unknown }).from = vi.fn((table: string) => {
+      if (table === 'post_assets') {
+        return {
+          insert: vi.fn((row: Record<string, unknown>) => {
+            mockState.insertedAsset = row
+            attempt += 1
+            return {
+              select: vi.fn(() => ({
+                single: vi.fn(async () => {
+                  if (attempt === 1) {
+                    return {
+                      data: null,
+                      error: { code: '42703', message: 'column post_assets.aspect_ratio does not exist' },
+                    }
+                  }
+                  return {
+                    data: {
+                      id: 'asset-3',
+                      storage_path: 'thai-sea/x/x.jpg',
+                      role: 'client_added',
+                      sort_order: 999,
+                    },
+                    error: null,
+                  }
+                }),
+              })),
+            }
+          }),
+        }
+      }
+      // delegate to original mock for other tables
+      return (origFrom as (t: string) => unknown)(table)
+    })
+
+    const file = new Blob([new Uint8Array(1024)], { type: 'image/jpeg' })
+    const POST = await loadHandler()
+    const req = await makeFormRequest(file)
+    const res = await POST(req as never, ctx as never)
+
+    expect(res.status).toBe(200)
+    const body = (await res.json()) as { ok: boolean; asset: Record<string, unknown> }
+    expect(body.ok).toBe(true)
+    expect(body.asset.aspect_ratio).toBeNull()
+    // Storage upload should NOT have been rolled back
+    expect(mockState.storageRemoveCalls).toEqual([])
+    expect(attempt).toBe(2)
+
+    // restore
+    ;(supabaseAdmin as { from: unknown }).from = origFrom
+  })
+
   it('10. HEIC input: events.payload includes input_mime, aspect_ratio, sizes', async () => {
     mockState.postFetchResp = {
       data: { id: VALID_POST_ID, client_id: 'client-1', status: 'pending_review' },

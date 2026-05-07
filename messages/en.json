@@ -7,11 +7,32 @@
     "switchToEnglish": "Switch language to English"
   },
   "calendar": {
-    "emptyState": "Your content calendar will appear here once posts are ready for review."
+    "emptyState": "Your content calendar will appear here once posts are ready for review.",
+    "emptyStateBody": "Tew will prepare posts soon",
+    "sectionNeedsReview": "Needs review",
+    "sectionApproved": "Approved"
   },
   "post": {
     "placeholder": "Post details will appear here in the next update.",
-    "backLink": "Calendar"
+    "backLink": "Calendar",
+    "scheduledFor": "Scheduled for",
+    "channels": "Channels",
+    "caption": "Caption"
+  },
+  "photo": {
+    "addLabel": "Add photo",
+    "deleteAriaLabel": "Delete photo",
+    "deleteConfirmTitle": "Delete this photo?",
+    "deleteConfirmPrimary": "Delete",
+    "deleteConfirmCancel": "Cancel",
+    "openInBrowser": "Open in browser to upload"
+  },
+  "toast": {
+    "saveSuccess": "Saved",
+    "saveFailed": "Save failed",
+    "notEditable": "Cannot edit",
+    "fileTooLarge": "File too large (max 25 MB)",
+    "uploadFailed": "Upload failed"
   },
   "offline": {
     "toast": "No internet connection"

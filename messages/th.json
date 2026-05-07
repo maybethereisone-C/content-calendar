@@ -7,11 +7,32 @@
     "switchToEnglish": "เปลี่ยนภาษาเป็นภาษาอังกฤษ"
   },
   "calendar": {
-    "emptyState": "ตารางคอนเทนต์ของคุณจะแสดงที่นี่เมื่อมีโพสต์พร้อมตรวจ"
+    "emptyState": "ตารางคอนเทนต์ของคุณจะแสดงที่นี่เมื่อมีโพสต์พร้อมตรวจ",
+    "emptyStateBody": "ทิวจะเตรียมโพสต์ให้เร็ว ๆ นี้",
+    "sectionNeedsReview": "ต้องตรวจ",
+    "sectionApproved": "อนุมัติแล้ว"
   },
   "post": {
     "placeholder": "รายละเอียดโพสต์จะแสดงที่นี่ในการอัปเดตครั้งถัดไป",
-    "backLink": "ปฏิทิน"
+    "backLink": "ปฏิทิน",
+    "scheduledFor": "กำหนดโพสต์",
+    "channels": "ช่องทาง",
+    "caption": "แคปชัน"
+  },
+  "photo": {
+    "addLabel": "เพิ่มรูป",
+    "deleteAriaLabel": "ลบรูปภาพ",
+    "deleteConfirmTitle": "ลบรูปภาพนี้?",
+    "deleteConfirmPrimary": "ลบ",
+    "deleteConfirmCancel": "ยกเลิก",
+    "openInBrowser": "เปิดในเบราว์เซอร์เพื่ออัปโหลด"
+  },
+  "toast": {
+    "saveSuccess": "บันทึกแล้ว",
+    "saveFailed": "บันทึกไม่สำเร็จ",
+    "notEditable": "ไม่สามารถแก้ไขได้",
+    "fileTooLarge": "ไฟล์ใหญ่เกินไป (สูงสุด 25 MB)",
+    "uploadFailed": "อัปโหลดไม่สำเร็จ"
   },
   "offline": {
     "toast": "ไม่มีอินเทอร์เน็ต"

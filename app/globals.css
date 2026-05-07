@@ -19,17 +19,31 @@
   --warn-fg: #FFFFFF;
   --success: #059669;
   --success-fg: #FFFFFF;
-  --chip-pending-bg: rgba(37,99,235,0.10);
-  --chip-pending-fg: #2563EB;
-  --chip-review-bg: rgba(217,119,6,0.10);
-  --chip-review-fg: #B45309;
-  --chip-scheduled-bg: rgba(5,150,105,0.10);
-  --chip-scheduled-fg: #047857;
-  --chip-published-bg: rgba(108,117,125,0.10);
-  --chip-published-fg: #495057;
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
   --shadow: 0 2px 6px rgba(0,0,0,0.06);
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+
+  /* Phase 2: status chip palette per UI-SPEC §"Color".
+     `published` reuses --surface-2 / --text-mut — no dedicated var. */
+  --chip-pending-bg: #FEF3C7;
+  --chip-pending-fg: #92400E;
+  --chip-approved-bg: #DBEAFE;
+  --chip-approved-fg: #1E40AF;
+  --chip-needs-tew-bg: #FEE2E2;
+  --chip-needs-tew-fg: #991B1B;
+
+  /* Phase 2: caption editor focus tokens (consumer ships in 02-03). */
+  --editor-bg-idle: var(--surface-2);
+  --editor-bg-focus: var(--surface);
+  --editor-focus-ring: 0 0 0 4px rgba(37, 99, 235, 0.15);
+
+  /* Phase 2: toast palette (consumer ships in 02-03/02-04). */
+  --toast-success-bg: #DCFCE7;
+  --toast-success-fg: #166534;
+  --toast-success-border: #86EFAC;
+  --toast-error-bg: #FEE2E2;
+  --toast-error-fg: #991B1B;
+  --toast-error-border: #FCA5A5;
 }
 
 [data-theme="dark"] {
@@ -46,17 +60,30 @@
   --warn-fg: #1F1410;
   --success: #34D399;
   --success-fg: #052E20;
-  --chip-pending-bg: rgba(96,165,250,0.18);
-  --chip-pending-fg: #93C5FD;
-  --chip-review-bg: rgba(245,158,11,0.18);
-  --chip-review-fg: #FCD34D;
-  --chip-scheduled-bg: rgba(52,211,153,0.18);
-  --chip-scheduled-fg: #6EE7B7;
-  --chip-published-bg: rgba(148,163,184,0.20);
-  --chip-published-fg: #CBD5E1;
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
   --shadow: 0 2px 6px rgba(0,0,0,0.4);
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+
+  /* Phase 2: dark-mode chip palette per UI-SPEC §"Color". */
+  --chip-pending-bg: #3F2A0E;
+  --chip-pending-fg: #FCD34D;
+  --chip-approved-bg: #1E3A8A;
+  --chip-approved-fg: #BFDBFE;
+  --chip-needs-tew-bg: #7F1D1D;
+  --chip-needs-tew-fg: #FCA5A5;
+
+  /* Phase 2: dark-mode editor focus tokens. */
+  --editor-bg-idle: var(--surface-2);
+  --editor-bg-focus: var(--surface);
+  --editor-focus-ring: 0 0 0 4px rgba(59, 130, 246, 0.20);
+
+  /* Phase 2: dark-mode toast palette. */
+  --toast-success-bg: #14532D;
+  --toast-success-fg: #86EFAC;
+  --toast-success-border: #22C55E;
+  --toast-error-bg: #7F1D1D;
+  --toast-error-fg: #FCA5A5;
+  --toast-error-border: #DC2626;
 }
 
 html {

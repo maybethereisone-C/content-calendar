@@ -23,12 +23,14 @@
  * each request and never serves a stale calendar from the build-time cache.
  */
 import { headers } from 'next/headers'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { CalendarDays } from 'lucide-react'
 import { supabaseAdmin } from '@/lib/supabase/server'
 import { fetchCalendarPosts } from '@/lib/posts/calendar-query'
 import { splitSections } from '@/lib/posts/section-split'
-import { type Channel } from '@/lib/channel-limits'
+import { CHANNEL_LABEL, type Channel } from '@/lib/channel-limits'
+import { formatBangkokDate, type DateLocale } from '@/lib/format-date'
+import { getStatusChip } from '@/lib/post-status'
 import { PostCard, type PostCardData } from '@/app/_components/post-card'
 import { SectionHeader } from '@/app/_components/section-header'
 
@@ -69,6 +71,10 @@ export default async function CalendarPage({
   }
 
   const t = await getTranslations('calendar')
+  const tStatus = await getTranslations('status')
+  const tChannel = await getTranslations('channel')
+  const localeRaw = await getLocale()
+  const locale: DateLocale = localeRaw === 'th' ? 'th' : 'en'
   const posts = await fetchCalendarPosts(clientId)
 
   // ── Resolve channel_ids → platform names via single batched select ─────
@@ -92,10 +98,10 @@ export default async function CalendarPage({
     const sortedAssets = [...p.post_assets].sort(
       (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
     )
-    // Prefer the first `tew_prepared` asset; fall back to the first asset.
-    const tewFirst =
-      sortedAssets.find((a) => a.role === 'tew_prepared') ?? sortedAssets[0]
-    const url = tewFirst ? resolvePhotoUrl(tewFirst.storage_path) : null
+    // Prefer the first `team_prepared` asset; fall back to the first asset.
+    const heroAsset =
+      sortedAssets.find((a) => a.role === 'team_prepared') ?? sortedAssets[0]
+    const url = heroAsset ? resolvePhotoUrl(heroAsset.storage_path) : null
     const platforms = p.channel_ids
       .map((id) => channelPlatformMap.get(id))
       .filter((x): x is Channel => x !== undefined)
@@ -169,11 +175,29 @@ export default async function CalendarPage({
             listStyle: 'none',
           }}
         >
-          {needsReview.map((p) => (
-            <li key={p.id}>
-              <PostCard token={token} post={p} />
-            </li>
-          ))}
+          {needsReview.map((p) => {
+            const chip = getStatusChip(p.status)
+            const statusLabel = tStatus(chip.labelKey)
+            return (
+              <li key={p.id}>
+                <PostCard
+                  token={token}
+                  post={p}
+                  locale={locale}
+                  statusLabel={statusLabel}
+                  ariaTemplate={t('cardAria', {
+                    date: formatBangkokDate(p.scheduled_for, locale),
+                    status: statusLabel,
+                  })}
+                  channelAriaTemplate={(platform: string) =>
+                    tChannel('ariaLabel', {
+                      platform: CHANNEL_LABEL[platform as Channel] ?? platform,
+                    })
+                  }
+                />
+              </li>
+            )
+          })}
         </ul>
       )}
       <SectionHeader label={t('sectionApproved')} count={approved.length} />
@@ -189,11 +213,29 @@ export default async function CalendarPage({
             listStyle: 'none',
           }}
         >
-          {approved.map((p) => (
-            <li key={p.id}>
-              <PostCard token={token} post={p} />
-            </li>
-          ))}
+          {approved.map((p) => {
+            const chip = getStatusChip(p.status)
+            const statusLabel = tStatus(chip.labelKey)
+            return (
+              <li key={p.id}>
+                <PostCard
+                  token={token}
+                  post={p}
+                  locale={locale}
+                  statusLabel={statusLabel}
+                  ariaTemplate={t('cardAria', {
+                    date: formatBangkokDate(p.scheduled_for, locale),
+                    status: statusLabel,
+                  })}
+                  channelAriaTemplate={(platform: string) =>
+                    tChannel('ariaLabel', {
+                      platform: CHANNEL_LABEL[platform as Channel] ?? platform,
+                    })
+                  }
+                />
+              </li>
+            )
+          })}
         </ul>
       )}
     </main>

@@ -1,14 +1,11 @@
 /**
- * StatusChip — RSC pill mapping ChipVariant → CSS-var palette + Thai label.
+ * StatusChip — RSC pill mapping ChipVariant → CSS-var palette + label.
  *
  * Per UI-SPEC §Components and CAL-02:
- *   - 999px radius, padding 3px 8px, font 11px/600 thai
+ *   - 999px radius, padding 3px 8px, font 11px/600
  *   - Each variant resolves to its --chip-{variant}-bg / --chip-{variant}-fg pair.
- *     `published` is the exception — UI-SPEC reuses --surface-2 / --text-mut
- *     and intentionally does NOT define a dedicated chip-published var.
- *   - The `label` prop is rendered verbatim. Status text is NOT translated via
- *     next-intl (UI-SPEC §"Translation strategy" — same pattern as Phase 1's
- *     A2HS string constants).
+ *   - The `label` prop is rendered verbatim. Callers resolve the localized
+ *     status label via `t(`status.${labelKey}`)` from `getStatusChip()`.
  *   - data-status-chip="{variant}" mirrors the variant for downstream stylesheet
  *     hooks (CSS variant selectors, axe-core fixture lookups).
  *
@@ -19,13 +16,12 @@ import type { ChipVariant } from '@/lib/post-status'
 const VARIANT_VARS: Record<ChipVariant, { bg: string; fg: string }> = {
   pending: { bg: 'var(--chip-pending-bg)', fg: 'var(--chip-pending-fg)' },
   approved: { bg: 'var(--chip-approved-bg)', fg: 'var(--chip-approved-fg)' },
-  'needs-tew': {
-    bg: 'var(--chip-needs-tew-bg)',
-    fg: 'var(--chip-needs-tew-fg)',
+  'needs-team': {
+    bg: 'var(--chip-needs-team-bg)',
+    fg: 'var(--chip-needs-team-fg)',
   },
   // chip-published owns its bg/fg — bg tracks --surface-2 via CSS var aliasing,
   // but fg is darker than --text-mut so 11px normal text clears WCAG AA.
-  // Rule 1 fix from executor 02-02; see globals.css comment.
   published: { bg: 'var(--chip-published-bg)', fg: 'var(--chip-published-fg)' },
 }
 

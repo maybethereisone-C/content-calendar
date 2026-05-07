@@ -1,47 +1,49 @@
 /**
- * lib/post-status.ts — Status enum + chip variant + Thai label mapping (D-09)
+ * lib/post-status.ts — Status enum + chip variant + translation key (D-09)
  *
- * Per CAL-02: `failed` posts are surfaced in the "ต้องตรวจ" section as if
- * they were `pending_review` — they need human attention. Buffer's actual
- * failure detail lives in `events.payload`.
+ * Per CAL-02: `failed` posts surface in the "needs review" section as if
+ * they were `pending_review` — they need human attention.
  *
- * Thai labels are byte-locked per SPEC + roadmap (รอตรวจ / อนุมัติแล้ว / รอทิว
- * / โพสต์แล้ว) — do not paraphrase.
+ * Status labels resolve via `next-intl` keys (`status.*`) so EN/TH render
+ * naturally. `labelKey` is a path under the `status` namespace; callers
+ * do `t(`status.${labelKey}`)` to render the localized label.
  */
 
 export type PostStatus =
   | 'pending_review'
   | 'approved'
   | 'scheduled'
-  | 'needs_tew'
+  | 'needs_team'
   | 'published'
   | 'failed'
 
-export type ChipVariant = 'pending' | 'approved' | 'needs-tew' | 'published'
+export type ChipVariant = 'pending' | 'approved' | 'needs-team' | 'published'
+
+export type StatusLabelKey = 'pending' | 'approved' | 'needsTeam' | 'published'
 
 export interface StatusChip {
   variant: ChipVariant
-  labelTh: string
+  labelKey: StatusLabelKey
 }
 
 export function getStatusChip(s: PostStatus): StatusChip {
   switch (s) {
     case 'pending_review':
     case 'failed':
-      return { variant: 'pending', labelTh: 'รอตรวจ' }
+      return { variant: 'pending', labelKey: 'pending' }
     case 'approved':
     case 'scheduled':
-      return { variant: 'approved', labelTh: 'อนุมัติแล้ว' }
-    case 'needs_tew':
-      return { variant: 'needs-tew', labelTh: 'รอทิว' }
+      return { variant: 'approved', labelKey: 'approved' }
+    case 'needs_team':
+      return { variant: 'needs-team', labelKey: 'needsTeam' }
     case 'published':
-      return { variant: 'published', labelTh: 'โพสต์แล้ว' }
+      return { variant: 'published', labelKey: 'published' }
   }
 }
 
 const NEEDS_REVIEW: ReadonlySet<PostStatus> = new Set([
   'pending_review',
-  'needs_tew',
+  'needs_team',
   'failed',
 ])
 

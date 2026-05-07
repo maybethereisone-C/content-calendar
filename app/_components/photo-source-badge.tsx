@@ -1,25 +1,30 @@
+'use client'
+
 /**
  * PhotoSourceBadge — subtle dark pill rendered top-left of every gallery photo.
  *
  * Per UI-SPEC §"<PostDetailGallery>" + Q7=1 (single label per photo): both
  * roles share the same color treatment; distinguished by text only.
  *
- *   - role='tew_prepared' → "Tew" (Latin, default font stack)
- *   - role='client_added' → "คุณ" (Thai, --font-thai stack)
+ *   - role='team_prepared' → t('photo.fromTeam')   ("Team" / "ทีมงาน")
+ *   - role='client_added'  → t('photo.fromYou')    ("You" / "คุณ")
  *
- * RSC by design (no client interactivity); imported by PostDetailGallery
- * which is itself a Client Component (the gallery hosts scroll observers and
- * delete dialogs — children can safely be plain server-rendered JSX).
+ * Client component because it consumes `useTranslations`. Parent gallery is
+ * already a client component, so the boundary is unchanged.
  */
-export function PhotoSourceBadge({
-  role,
-}: {
-  role: 'tew_prepared' | 'client_added'
-}) {
-  const label = role === 'tew_prepared' ? 'Tew' : 'คุณ'
+import { useTranslations, useLocale } from 'next-intl'
+
+export type PhotoSourceRole = 'team_prepared' | 'client_added'
+
+export function PhotoSourceBadge({ role }: { role: PhotoSourceRole }) {
+  const t = useTranslations('photo')
+  const locale = useLocale()
+  const isTeam = role === 'team_prepared'
+  const label = isTeam ? t('fromTeam') : t('fromYou')
+  const ariaLabel = isTeam ? t('fromTeamAria') : t('fromYouAria')
   return (
     <span
-      aria-label={role === 'tew_prepared' ? 'ภาพจากทิว' : 'ภาพจากคุณ'}
+      aria-label={ariaLabel}
       style={{
         position: 'absolute',
         top: 8,
@@ -33,7 +38,7 @@ export function PhotoSourceBadge({
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
         fontFamily:
-          role === 'client_added' ? 'var(--font-thai, inherit)' : 'inherit',
+          locale === 'th' ? 'var(--font-thai, inherit)' : 'inherit',
         pointerEvents: 'none',
       }}
     >

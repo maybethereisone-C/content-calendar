@@ -90,7 +90,7 @@ interface SeedPost {
     | 'pending_review'
     | 'approved'
     | 'scheduled'
-    | 'needs_tew'
+    | 'needs_team'
     | 'published'
     | 'failed'
   caption_th: string
@@ -114,9 +114,9 @@ const SEED_POSTS: SeedPost[] = [
   },
   {
     scheduled_for: offsetIso(-1),
-    status: 'needs_tew',
+    status: 'needs_team',
     caption_th:
-      '[SEED] ลูกค้าขอแก้แคปชัน — รอทิวอัพเดตข้อมูลโปรโมชันใหม่ก่อนปล่อยลง Instagram',
+      '[SEED] ลูกค้าขอแก้แคปชัน — รอทีมงานอัปเดตข้อมูลโปรโมชันใหม่ก่อนปล่อยลง Instagram',
     asset_count: 2,
   },
   {
@@ -262,7 +262,7 @@ async function main(): Promise<void> {
         // value directly instead of composing a bucket URL — see
         // app/c/[token]/calendar/page.tsx (Plan 02-02 Task 3).
         storage_path: url,
-        role: 'tew_prepared' as const,
+        role: 'team_prepared' as const,
         sort_order: i,
       }
     })
@@ -285,7 +285,7 @@ async function main(): Promise<void> {
     `✓ Seeded ${SEED_POSTS.length} posts (${assetCounter} total photos) for ${client.slug}`,
   )
   // eslint-disable-next-line no-console
-  console.log('  Statuses: 2× pending_review · 1× needs_tew · 1× scheduled · 1× published')
+  console.log('  Statuses: 2× pending_review · 1× needs_team · 1× scheduled · 1× published')
 }
 
 main().catch((err: unknown) => {

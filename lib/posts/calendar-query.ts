@@ -29,7 +29,7 @@ import type { PostStatus } from '@/lib/post-status'
 export interface PostAssetRow {
   id: string
   storage_path: string
-  role: 'tew_prepared' | 'client_added'
+  role: 'team_prepared' | 'client_added'
   sort_order: number | null
   aspect_ratio: '1:1' | '4:5' | null
 }
@@ -86,7 +86,7 @@ export async function fetchCalendarPosts(
         (a: {
           id: string
           storage_path: string
-          role: 'tew_prepared' | 'client_added'
+          role: 'team_prepared' | 'client_added'
           sort_order: number | null
         }) => ({ ...a, aspect_ratio: null as '1:1' | '4:5' | null }),
       ),

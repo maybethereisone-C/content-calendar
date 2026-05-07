@@ -25,7 +25,7 @@ import { AddPhotoButton } from './add-photo-button'
 
 export interface GalleryAsset {
   id: string
-  role: 'tew_prepared' | 'client_added'
+  role: 'team_prepared' | 'client_added'
   publicUrl: string
   /**
    * From post_assets.aspect_ratio (added in migration 0002_storage.sql /

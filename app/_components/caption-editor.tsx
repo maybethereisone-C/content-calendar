@@ -12,12 +12,12 @@
  *     does NOT double-save).
  *   - If the value matches lastSaved, skip the save (no-op blur).
  *
- * Save outcomes:
- *   - ok:true                  → success toast 'บันทึกแล้ว' (auto-clears 4s)
- *   - error 'not_editable'     → revert textarea to last saved value;
- *                                error toast 'ไม่สามารถแก้ไขได้' (persists)
- *   - any other error          → keep textarea value; error toast
- *                                'บันทึกไม่สำเร็จ' (persists)
+ * Save outcomes (toast copy via next-intl `toast.*`):
+ *   - ok:true              → success toast t('saveSuccess') (auto-clears 4s)
+ *   - error 'not_editable' → revert textarea to last saved value;
+ *                            error toast t('notEditable') (persists)
+ *   - any other error      → keep textarea value; error toast
+ *                            t('saveFailed') (persists)
  *
  * Disabled state: when `isPending=false` (post status not pending_review),
  * the textarea is opacity 0.6 + pointer-events: none. CharCounter still
@@ -30,6 +30,7 @@
 
 import { useRef, useState, useTransition, useCallback } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
+import { useTranslations, useLocale } from 'next-intl'
 import { Textarea } from '@/components/ui/textarea'
 import { CharCounter } from './char-counter'
 import { InlineToastBanner, type ToastState } from './inline-toast-banner'
@@ -53,6 +54,12 @@ export function CaptionEditor({
   isPending: boolean
   channels: Channel[]
 }) {
+  const t = useTranslations('toast')
+  const tPost = useTranslations('post')
+  const locale = useLocale()
+  const fontStack =
+    locale === 'th' ? 'var(--font-thai, inherit)' : 'inherit'
+
   const methods = useForm<FormShape>({
     defaultValues: { caption: initialCaption },
   })
@@ -76,14 +83,14 @@ export function CaptionEditor({
         const res = await updateCaption({ postId, newCaption: v })
         if (res.ok) {
           lastSaved.current = v
-          setToast({ kind: 'success', message: 'บันทึกแล้ว' })
+          setToast({ kind: 'success', message: t('saveSuccess') })
         } else if (res.error === 'not_editable') {
           // Status changed under us — revert and show persistent error.
           setValue('caption', lastSaved.current)
-          setToast({ kind: 'error', message: 'ไม่สามารถแก้ไขได้' })
+          setToast({ kind: 'error', message: t('notEditable') })
         } else {
           // Network/db/validation error — keep value, prompt retry on next blur.
-          setToast({ kind: 'error', message: 'บันทึกไม่สำเร็จ' })
+          setToast({ kind: 'error', message: t('saveFailed') })
         }
       })
     }, SAVE_GRACE_MS)
@@ -111,7 +118,7 @@ export function CaptionEditor({
           onFocus={handleFocus}
           onBlur={handleBlur}
           disabled={!isPending}
-          aria-label="แคปชัน"
+          aria-label={tPost('captionAriaLabel')}
           rows={6}
           style={{
             width: '100%',
@@ -125,7 +132,7 @@ export function CaptionEditor({
             padding: focused ? '13px 15px' : '14px 16px',
             fontSize: 14,
             lineHeight: 1.6,
-            fontFamily: 'var(--font-thai, inherit)',
+            fontFamily: fontStack,
             color: 'var(--text)',
             resize: 'none',
             minHeight: 120,

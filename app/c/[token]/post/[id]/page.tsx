@@ -25,11 +25,11 @@
 import Link from 'next/link'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { ChevronLeft } from 'lucide-react'
 import { supabaseAdmin } from '@/lib/supabase/server'
-import { formatBangkokDateTime } from '@/lib/format-date'
-import { CHANNEL_ORDER, type Channel } from '@/lib/channel-limits'
+import { formatBangkokDateTime, type DateLocale } from '@/lib/format-date'
+import { CHANNEL_LABEL, CHANNEL_ORDER, type Channel } from '@/lib/channel-limits'
 import { type PostStatus } from '@/lib/post-status'
 import { ChannelBadge } from '@/app/_components/channel-badge'
 import { CaptionEditor } from '@/app/_components/caption-editor'
@@ -45,6 +45,7 @@ interface ChannelRow {
   platform: string
 }
 
+
 export default async function PostDetailPage({
   params,
 }: {
@@ -57,6 +58,11 @@ export default async function PostDetailPage({
   if (!clientId) throw new Error('missing_x_client_id_middleware_misconfigured')
 
   const t = await getTranslations()
+  const tChannel = await getTranslations('channel')
+  const localeRaw = await getLocale()
+  const locale: DateLocale = localeRaw === 'th' ? 'th' : 'en'
+  const fontStack =
+    locale === 'th' ? 'var(--font-thai, inherit)' : 'inherit'
 
   // Single batched fetch: post + nested post_assets (deleted_at filter applied
   // post-hoc per calendar-query convention to avoid Supabase nested-filter
@@ -101,7 +107,7 @@ export default async function PostDetailPage({
   const rawAssets = (post.post_assets ?? []) as Array<{
     id: string
     storage_path: string
-    role: 'tew_prepared' | 'client_added'
+    role: 'team_prepared' | 'client_added'
     sort_order: number | null
     deleted_at: string | null
   }>
@@ -171,7 +177,13 @@ export default async function PostDetailPage({
       >
         <div style={{ display: 'flex', gap: 6 }}>
           {platforms.map((p) => (
-            <ChannelBadge key={p} platform={p} />
+            <ChannelBadge
+              key={p}
+              platform={p}
+              ariaLabel={tChannel('ariaLabel', {
+                platform: CHANNEL_LABEL[p] ?? p,
+              })}
+            />
           ))}
         </div>
         {post.scheduled_for && (
@@ -180,10 +192,10 @@ export default async function PostDetailPage({
               fontSize: 13,
               fontWeight: 600,
               color: 'var(--text-mut)',
-              fontFamily: 'var(--font-thai, inherit)',
+              fontFamily: fontStack,
             }}
           >
-            {formatBangkokDateTime(post.scheduled_for)}
+            {formatBangkokDateTime(post.scheduled_for, locale)}
           </span>
         )}
       </div>
@@ -195,7 +207,7 @@ export default async function PostDetailPage({
           fontSize: 13,
           fontWeight: 600,
           color: 'var(--text-mut)',
-          fontFamily: 'var(--font-thai, inherit)',
+          fontFamily: fontStack,
         }}
       >
         {t('post.caption')}

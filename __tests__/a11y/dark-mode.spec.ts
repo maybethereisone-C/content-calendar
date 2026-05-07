@@ -86,7 +86,7 @@ for (const path of ROUTES) {
 /**
  * Phase 2 / 02-02: chip + badge palette coverage.
  *
- * UI-SPEC §"Color" defines four StatusChip variants (pending/approved/needs-tew
+ * UI-SPEC §"Color" defines four StatusChip variants (pending/approved/needs-team
  * /published) and four ChannelBadge tints (instagram/facebook/tiktok/x). Each
  * must clear WCAG AA (4.5:1 normal, 3:1 large) in BOTH light and dark mode.
  *
@@ -114,8 +114,8 @@ const CHIP_BADGE_FIXTURE = `<!DOCTYPE html>
         --chip-pending-fg: #92400E;
         --chip-approved-bg: #DBEAFE;
         --chip-approved-fg: #1E40AF;
-        --chip-needs-tew-bg: #FEE2E2;
-        --chip-needs-tew-fg: #991B1B;
+        --chip-needs-team-bg: #FEE2E2;
+        --chip-needs-team-fg: #991B1B;
         --chip-published-bg: var(--surface-2);
         --chip-published-fg: #5C677A;
       }
@@ -130,8 +130,8 @@ const CHIP_BADGE_FIXTURE = `<!DOCTYPE html>
         --chip-pending-fg: #FCD34D;
         --chip-approved-bg: #1E3A8A;
         --chip-approved-fg: #BFDBFE;
-        --chip-needs-tew-bg: #7F1D1D;
-        --chip-needs-tew-fg: #FCA5A5;
+        --chip-needs-team-bg: #7F1D1D;
+        --chip-needs-team-fg: #FCA5A5;
         --chip-published-bg: var(--surface-2);
         --chip-published-fg: #A0AEC2;
       }
@@ -139,7 +139,7 @@ const CHIP_BADGE_FIXTURE = `<!DOCTYPE html>
       .chip { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; line-height: 1; margin: 4px; }
       .chip[data-status-chip="pending"]   { background: var(--chip-pending-bg);   color: var(--chip-pending-fg); }
       .chip[data-status-chip="approved"]  { background: var(--chip-approved-bg);  color: var(--chip-approved-fg); }
-      .chip[data-status-chip="needs-tew"] { background: var(--chip-needs-tew-bg); color: var(--chip-needs-tew-fg); }
+      .chip[data-status-chip="needs-team"] { background: var(--chip-needs-team-bg); color: var(--chip-needs-team-fg); }
       .chip[data-status-chip="published"] { background: var(--chip-published-bg); color: var(--chip-published-fg); }
       .badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; background: var(--surface-2); color: var(--text-mut); margin: 4px; font-size: 14px; }
     </style>
@@ -149,7 +149,7 @@ const CHIP_BADGE_FIXTURE = `<!DOCTYPE html>
     <p>
       <span class="chip" data-status-chip="pending">รอตรวจ</span>
       <span class="chip" data-status-chip="approved">อนุมัติแล้ว</span>
-      <span class="chip" data-status-chip="needs-tew">รอทิว</span>
+      <span class="chip" data-status-chip="needs-team">รอทีมงาน</span>
       <span class="chip" data-status-chip="published">โพสต์แล้ว</span>
     </p>
     <p>

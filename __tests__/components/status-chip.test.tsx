@@ -29,12 +29,12 @@ describe('StatusChip', () => {
     expect(el.getAttribute('style')).toContain('var(--chip-approved-fg)')
   })
 
-  it('renders needs-tew variant with chip-needs-tew CSS vars', () => {
-    render(<StatusChip variant="needs-tew" label="รอทิว" />)
-    const el = screen.getByText('รอทิว')
-    expect(el.getAttribute('data-status-chip')).toBe('needs-tew')
-    expect(el.getAttribute('style')).toContain('var(--chip-needs-tew-bg)')
-    expect(el.getAttribute('style')).toContain('var(--chip-needs-tew-fg)')
+  it('renders needs-team variant with chip-needs-team CSS vars', () => {
+    render(<StatusChip variant="needs-team" label="Awaiting team" />)
+    const el = screen.getByText('Awaiting team')
+    expect(el.getAttribute('data-status-chip')).toBe('needs-team')
+    expect(el.getAttribute('style')).toContain('var(--chip-needs-team-bg)')
+    expect(el.getAttribute('style')).toContain('var(--chip-needs-team-fg)')
   })
 
   it('renders published variant with chip-published vars (AA-safe)', () => {

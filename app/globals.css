@@ -33,8 +33,8 @@
   --chip-pending-fg: #92400E;
   --chip-approved-bg: #DBEAFE;
   --chip-approved-fg: #1E40AF;
-  --chip-needs-tew-bg: #FEE2E2;
-  --chip-needs-tew-fg: #991B1B;
+  --chip-needs-team-bg: #FEE2E2;
+  --chip-needs-team-fg: #991B1B;
   --chip-published-bg: var(--surface-2);
   --chip-published-fg: #5C677A;
 
@@ -58,7 +58,7 @@
      Introduce dedicated counter-warn-text / counter-danger-text aliasing the
      chip palette (already AA-verified for text-on-neutral-bg). */
   --counter-warn-text: var(--chip-pending-fg);   /* light: #92400E, dark: #FCD34D */
-  --counter-danger-text: var(--chip-needs-tew-fg); /* light: #991B1B, dark: #FCA5A5 */
+  --counter-danger-text: var(--chip-needs-team-fg); /* light: #991B1B, dark: #FCA5A5 */
 }
 
 [data-theme="dark"] {
@@ -86,8 +86,8 @@
   --chip-pending-fg: #FCD34D;
   --chip-approved-bg: #1E3A8A;
   --chip-approved-fg: #BFDBFE;
-  --chip-needs-tew-bg: #7F1D1D;
-  --chip-needs-tew-fg: #FCA5A5;
+  --chip-needs-team-bg: #7F1D1D;
+  --chip-needs-team-fg: #FCA5A5;
   --chip-published-bg: var(--surface-2);
   --chip-published-fg: #A0AEC2;
 

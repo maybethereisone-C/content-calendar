@@ -2,14 +2,14 @@
 
 /**
  * DeletePhotoButton — circular X button (top-right) on client_added gallery
- * photos. Tapping opens a Base UI Dialog "ลบรูปภาพนี้?". Confirm calls the
- * removeAsset Server Action then router.refresh.
+ * photos. Tapping opens a confirm Dialog. Confirm calls the removeAsset
+ * Server Action then router.refresh.
  *
  * Per UI-SPEC §"<DeletePhotoButton>" + POST-03:
  *   - 36×36 white circle (rgba(255,255,255,0.95)), top:8 right:8, X icon @18
- *   - aria-label="ลบรูปภาพ"
- *   - Confirm dialog uses Thai copy; primary action is danger-color
- *   - On not_removable response: show "ลบไม่ได้"; on db_error: "ลบไม่สำเร็จ"
+ *   - All copy resolved via next-intl (`photo.*` namespace)
+ *   - On not_removable response → deleteFailedNotRemovable
+ *   - On db_error → deleteFailedGeneric
  *
  * Notes:
  *   - This component renders ONLY when the parent already determined
@@ -19,6 +19,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations, useLocale } from 'next-intl'
 import { X } from 'lucide-react'
 import {
   Dialog,
@@ -37,6 +38,10 @@ export function DeletePhotoButton({
   postId: string
   assetId: string
 }) {
+  const t = useTranslations('photo')
+  const locale = useLocale()
+  const fontStack =
+    locale === 'th' ? 'var(--font-thai, inherit)' : 'inherit'
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -50,7 +55,11 @@ export function DeletePhotoButton({
         setOpen(false)
         router.refresh()
       } else {
-        setError(res.error === 'not_removable' ? 'ลบไม่ได้' : 'ลบไม่สำเร็จ')
+        setError(
+          res.error === 'not_removable'
+            ? t('deleteFailedNotRemovable')
+            : t('deleteFailedGeneric'),
+        )
       }
     })
   }
@@ -61,7 +70,7 @@ export function DeletePhotoButton({
         render={
           <button
             type="button"
-            aria-label="ลบรูปภาพ"
+            aria-label={t('deleteAriaLabel')}
             style={{
               position: 'absolute',
               top: 8,
@@ -85,16 +94,16 @@ export function DeletePhotoButton({
       />
 
       <DialogContent showCloseButton={false}>
-        <DialogTitle style={{ fontFamily: 'var(--font-thai, inherit)' }}>
-          ลบรูปภาพนี้?
+        <DialogTitle style={{ fontFamily: fontStack }}>
+          {t('deleteConfirmTitle')}
         </DialogTitle>
         <DialogDescription
           style={{
-            fontFamily: 'var(--font-thai, inherit)',
+            fontFamily: fontStack,
             color: 'var(--text-mut)',
           }}
         >
-          การลบจะถาวร — รูปจะหายจากโพสต์นี้
+          {t('deleteConfirmBody')}
         </DialogDescription>
         {error && (
           <p
@@ -102,7 +111,7 @@ export function DeletePhotoButton({
               color: 'var(--counter-danger-text)',
               fontSize: 12,
               marginTop: 8,
-              fontFamily: 'var(--font-thai, inherit)',
+              fontFamily: fontStack,
             }}
           >
             {error}
@@ -127,12 +136,12 @@ export function DeletePhotoButton({
               background: 'var(--surface)',
               color: 'var(--text)',
               minHeight: 44,
-              fontFamily: 'var(--font-thai, inherit)',
+              fontFamily: fontStack,
               fontSize: 14,
               cursor: isPending ? 'not-allowed' : 'pointer',
             }}
           >
-            ยกเลิก
+            {t('deleteConfirmCancel')}
           </button>
           <button
             type="button"
@@ -145,13 +154,13 @@ export function DeletePhotoButton({
               background: 'var(--counter-danger-text)',
               color: '#fff',
               minHeight: 44,
-              fontFamily: 'var(--font-thai, inherit)',
+              fontFamily: fontStack,
               fontSize: 14,
               fontWeight: 600,
               cursor: isPending ? 'not-allowed' : 'pointer',
             }}
           >
-            {isPending ? '...' : 'ลบ'}
+            {isPending ? '…' : t('deleteConfirmPrimary')}
           </button>
         </DialogFooter>
       </DialogContent>

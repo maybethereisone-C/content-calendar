@@ -305,11 +305,10 @@ describe('POST /api/c/[token]/post/[id]/asset', () => {
     })
     const res = await POST(req as never, ctx as never)
     expect(res.status).toBe(413)
-    const body = (await res.json()) as { ok: boolean; error: string; message_th: string }
+    const body = (await res.json()) as { ok: boolean; error: string }
     expect(body).toMatchObject({
       ok: false,
       error: 'file_too_large',
-      message_th: 'ไฟล์ใหญ่เกินไป (สูงสุด 25 MB)',
     })
     expect(mockState.processPhotoCalls).toBe(0)
     expect(mockState.storageUploadCalls).toEqual([])

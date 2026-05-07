@@ -40,11 +40,18 @@ const ICON: Record<Platform, LucideIcon> = {
   line: MessageCircle,
 }
 
-export function ChannelBadge({ platform }: { platform: Platform }) {
+export function ChannelBadge({
+  platform,
+  ariaLabel,
+}: {
+  platform: Platform
+  /** Localized "Posts to {platform}" string from the parent RSC. Defaults to platform name. */
+  ariaLabel?: string
+}) {
   const Icon = ICON[platform]
   return (
     <span
-      aria-label={platform}
+      aria-label={ariaLabel ?? platform}
       style={{
         display: 'inline-flex',
         alignItems: 'center',

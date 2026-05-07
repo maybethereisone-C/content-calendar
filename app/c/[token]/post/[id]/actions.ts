@@ -205,7 +205,7 @@ export async function updateCaption(
  *   3. Fetches asset to snapshot storage_path + verify cross-tenant + not
  *      already-deleted (D-12 defense in depth — DB UPDATE also enforces).
  *   4. Guarded UPDATE: WHERE id=$1 AND client_id=$2 AND role='client_added'
- *      AND deleted_at IS NULL. Tew_prepared photos return 0 rows = not_removable
+ *      AND deleted_at IS NULL. team_prepared photos return 0 rows = not_removable
  *      (PHOTO-03 forge defense — UI hides the button but API enforces).
  *   5. Storage.remove is best-effort: if it fails, log + continue. DB is the
  *      source of truth; orphaned Storage objects can be cleaned by a janitor
@@ -302,13 +302,13 @@ export async function removeAsset(
     id: string
     post_id: string
     client_id: string
-    role: 'tew_prepared' | 'client_added'
+    role: 'team_prepared' | 'client_added'
     storage_path: string
     deleted_at: string | null
   }
 
   // Guarded UPDATE: only succeeds if role='client_added' AND deleted_at IS NULL.
-  // Tew_prepared photos return 0 rows = not_removable (PHOTO-03 defense in depth).
+  // team_prepared photos return 0 rows = not_removable (PHOTO-03 defense in depth).
   // Race-loser (concurrent delete) also returns 0 rows.
   const { data: updated, error: updateErr } = await supabaseAdmin
     .from('post_assets')

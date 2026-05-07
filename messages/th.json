@@ -1,31 +1,51 @@
 {
   "app": {
     "wordmark": "ตารางคอนเทนต์",
+    "metaDescription": "ตรวจ แก้ไข และอนุมัติโพสต์โซเชียลของคุณก่อนปล่อยออกไป",
     "switchToDark": "เปลี่ยนเป็นธีมเข้ม",
     "switchToLight": "เปลี่ยนเป็นธีมสว่าง",
-    "switchToThai": "Switch language to Thai",
+    "switchToThai": "เปลี่ยนภาษาเป็นภาษาไทย",
     "switchToEnglish": "เปลี่ยนภาษาเป็นภาษาอังกฤษ"
   },
   "calendar": {
     "emptyState": "ตารางคอนเทนต์ของคุณจะแสดงที่นี่เมื่อมีโพสต์พร้อมตรวจ",
-    "emptyStateBody": "ทิวจะเตรียมโพสต์ให้เร็ว ๆ นี้",
+    "emptyStateBody": "ทีมงานกำลังเตรียมโพสต์ให้",
     "sectionNeedsReview": "ต้องตรวจ",
-    "sectionApproved": "อนุมัติแล้ว"
+    "sectionApproved": "อนุมัติแล้ว",
+    "cardAria": "โพสต์วันที่ {date}, สถานะ {status}"
+  },
+  "status": {
+    "pending": "รอตรวจ",
+    "approved": "อนุมัติแล้ว",
+    "needsTeam": "รอทีมงาน",
+    "published": "โพสต์แล้ว"
+  },
+  "photo": {
+    "addLabel": "เพิ่มรูป",
+    "addUploading": "กำลังอัปโหลด {count}…",
+    "fromTeam": "ทีมงาน",
+    "fromYou": "คุณ",
+    "fromTeamAria": "ภาพจากทีมงาน",
+    "fromYouAria": "ภาพจากคุณ",
+    "deleteAriaLabel": "ลบรูปภาพ",
+    "deleteConfirmTitle": "ลบรูปภาพนี้?",
+    "deleteConfirmBody": "การลบจะถาวร — รูปจะหายจากโพสต์นี้",
+    "deleteConfirmPrimary": "ลบ",
+    "deleteConfirmCancel": "ยกเลิก",
+    "deleteFailedNotRemovable": "ลบรูปนี้ไม่ได้",
+    "deleteFailedGeneric": "ลบไม่สำเร็จ ลองอีกครั้ง",
+    "openInBrowser": "เปิดในเบราว์เซอร์เพื่ออัปโหลด"
   },
   "post": {
     "placeholder": "รายละเอียดโพสต์จะแสดงที่นี่ในการอัปเดตครั้งถัดไป",
     "backLink": "ปฏิทิน",
     "scheduledFor": "กำหนดโพสต์",
     "channels": "ช่องทาง",
-    "caption": "แคปชัน"
+    "caption": "แคปชัน",
+    "captionAriaLabel": "แคปชัน"
   },
-  "photo": {
-    "addLabel": "เพิ่มรูป",
-    "deleteAriaLabel": "ลบรูปภาพ",
-    "deleteConfirmTitle": "ลบรูปภาพนี้?",
-    "deleteConfirmPrimary": "ลบ",
-    "deleteConfirmCancel": "ยกเลิก",
-    "openInBrowser": "เปิดในเบราว์เซอร์เพื่ออัปโหลด"
+  "channel": {
+    "ariaLabel": "โพสต์ไปยัง {platform}"
   },
   "toast": {
     "saveSuccess": "บันทึกแล้ว",

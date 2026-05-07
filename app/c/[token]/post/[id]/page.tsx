@@ -143,12 +143,18 @@ export default async function PostDetailPage({
         </Link>
       </div>
 
-      {/* Photo gallery (POST-01 gallery + POST-03). Plan 02-04 mounts
-          PostDetailGallery here, replacing the Plan 02-03 placeholder slot. */}
+      {/* Photo gallery (POST-01 gallery + POST-03 + PHOTO-01 add-photo).
+          Plan 02-04 mounted the gallery; Plan 02-05 wires AddPhotoButton via
+          the `token` prop. iosFallbackEnabled hardcoded to false until Plan
+          02-01 Task 4-B headed verdict lands (per Plan 02-01 SUMMARY
+          headed_session_notes.ios_picker_works = pending_tew). Tew can flip
+          via env var IOS_PWA_PICKER_FALLBACK once verified. */}
       <PostDetailGallery
+        token={token}
         postId={post.id}
         assets={galleryAssets}
         isPending={isPending}
+        iosFallbackEnabled={false}
       />
 
       {/* Channels + scheduled time strip (POST-01) */}

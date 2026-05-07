@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { PhotoSourceBadge } from './photo-source-badge'
 import { DeletePhotoButton } from './delete-photo-button'
+import { AddPhotoButton } from './add-photo-button'
 
 export interface GalleryAsset {
   id: string
@@ -37,14 +38,20 @@ export interface GalleryAsset {
 }
 
 export function PostDetailGallery({
+  token,
   postId,
   assets,
   isPending,
+  iosFallbackEnabled = false,
 }: {
+  /** Per-client secret token from the URL — used by AddPhotoButton to POST to /api/c/[token]/post/[id]/asset. */
+  token: string
   postId: string
   assets: GalleryAsset[]
   /** Controls whether delete buttons + add-photo slot are interactive. */
   isPending: boolean
+  /** D-05 fallback: when true, AddPhotoButton renders a link that opens mobile Safari instead of the iOS PWA picker (which is blocked in standalone mode on some iOS versions). Default false; flip via iosFallbackEnabled prop or env var IOS_PWA_PICKER_FALLBACK once Plan 02-01 Task 4-B headed verdict lands. */
+  iosFallbackEnabled?: boolean
 }) {
   // All photos in one post share the locked aspect from the pipeline.
   // Read from the first asset; default to '4:5' if column is NULL.
@@ -125,28 +132,16 @@ export function PostDetailGallery({
           </div>
         ))}
 
-        {/* Add-photo slot — Plan 02-05 replaces this stub with <AddPhotoButton />. */}
-        <div
-          data-add-photo-slot="stub"
-          aria-hidden
-          style={{
-            flexShrink: 0,
-            scrollSnapAlign: 'center',
-            width: photoWidth,
-            height: photoHeight,
-            borderRadius: 12,
-            border: '2px dashed var(--border)',
-            background: 'var(--surface-2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--text-mut)',
-            fontSize: 12,
-            opacity: isPending ? 1 : 0.5,
-          }}
-        >
-          {/* Plan 02-05 fills */}
-        </div>
+        {/* Add-photo slot — Plan 02-05: AddPhotoButton handles iOS picker, sequential upload, spinner. */}
+        <AddPhotoButton
+          token={token}
+          postId={postId}
+          isPending={isPending}
+          aspectRatio={aspectRatio}
+          width={photoWidth}
+          height={photoHeight}
+          iosFallbackEnabled={iosFallbackEnabled}
+        />
       </div>
 
       {/* Dot indicator (excludes the add-slot from the count). */}

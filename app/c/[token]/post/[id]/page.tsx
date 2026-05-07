@@ -5,7 +5,7 @@
  *
  * Layout (per UI-SPEC §"Post detail page"):
  *   [back link]
- *   [gallery placeholder slot — Plan 02-04 fills this]
+ *   [photo gallery — PostDetailGallery, scroll-snap + dot indicator]
  *   [channels strip + scheduled time]
  *   [caption editor + char counter]
  *
@@ -14,10 +14,13 @@
  * ACCESS-04. The Server Action repeats the check (DB enforcement is the
  * canonical guard; the page guard is a fast-path hint).
  *
- * Aspect ratio note (Wave 3 executor 2026-05-08): post_assets.aspect_ratio
+ * Aspect ratio note (Wave 4 executor 2026-05-08): post_assets.aspect_ratio
  * is NOT selected here — column doesn't exist in live DB until migration
  * 0002_storage.sql applies (BLOCKED-AWAITING-TEW per Plan 02-01 SUMMARY).
- * Plan 02-04 (gallery) re-adds it to the SELECT after migration lands.
+ * The gallery defaults to '4:5' when aspect_ratio is null. Plan 02-05
+ * (upload pipeline) writes the resolved ProcessedPhoto.aspectRatio into
+ * the column at upload time. Once migration lands, add `aspect_ratio` to
+ * the SELECT and pipe it through to GalleryAsset.aspectRatio.
  */
 import Link from 'next/link'
 import { headers } from 'next/headers'
@@ -30,6 +33,10 @@ import { CHANNEL_ORDER, type Channel } from '@/lib/channel-limits'
 import { type PostStatus } from '@/lib/post-status'
 import { ChannelBadge } from '@/app/_components/channel-badge'
 import { CaptionEditor } from '@/app/_components/caption-editor'
+import {
+  PostDetailGallery,
+  type GalleryAsset,
+} from '@/app/_components/post-detail-gallery'
 
 export const dynamic = 'force-dynamic'
 
@@ -86,6 +93,30 @@ export default async function PostDetailPage({
     )
   }
 
+  // Build the gallery feed: filter soft-deleted, sort by sort_order, resolve
+  // public URLs. aspect_ratio is NOT in the SELECT (migration 0002_storage.sql
+  // BLOCKED-AWAITING-TEW per Plan 02-01 SUMMARY); the gallery component
+  // defaults to '4:5' when null. Plan 02-05 (upload pipeline) writes
+  // ProcessedPhoto.aspectRatio into this column at upload time.
+  const rawAssets = (post.post_assets ?? []) as Array<{
+    id: string
+    storage_path: string
+    role: 'tew_prepared' | 'client_added'
+    sort_order: number | null
+    deleted_at: string | null
+  }>
+  const galleryAssets: GalleryAsset[] = rawAssets
+    .filter((a) => a.deleted_at === null)
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    .map((a) => ({
+      id: a.id,
+      role: a.role,
+      publicUrl: supabaseAdmin.storage
+        .from('post-media')
+        .getPublicUrl(a.storage_path).data.publicUrl,
+      aspectRatio: null, // backfilled by Plan 02-05; gallery defaults to 4:5
+    }))
+
   return (
     <main
       style={{
@@ -112,17 +143,12 @@ export default async function PostDetailPage({
         </Link>
       </div>
 
-      {/* Gallery slot — Plan 02-04 will render <PostDetailGallery /> here.
-          Empty placeholder div keeps layout stable across the 02-03 → 02-04
-          handoff. The data-attr lets the Plan 02-04 verifier locate the
-          slot during smoke testing. */}
-      <div
-        data-gallery-slot="pending"
-        style={{
-          marginBottom: 16,
-          color: 'var(--text-mut)',
-          fontSize: 12,
-        }}
+      {/* Photo gallery (POST-01 gallery + POST-03). Plan 02-04 mounts
+          PostDetailGallery here, replacing the Plan 02-03 placeholder slot. */}
+      <PostDetailGallery
+        postId={post.id}
+        assets={galleryAssets}
+        isPending={isPending}
       />
 
       {/* Channels + scheduled time strip (POST-01) */}

@@ -35,6 +35,7 @@ import { nanoid } from 'nanoid'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase/server'
 import { getClientByToken } from '@/lib/supabase/clients'
+import { extractTokenFromPath } from '@/lib/middleware-token'
 import { processPhoto } from '@/lib/photo-pipeline/process'
 import { logger } from '@/lib/logger'
 
@@ -73,11 +74,22 @@ export async function POST(
   }
 
   // Plan 02-05 workaround for Next.js 15.5.x middleware multipart bug:
-  // do not read x-client-id from request.headers (would require the
-  // request-clone path in middleware that locks the multipart body).
-  // Re-resolve the client from the token here. Middleware still runs and
-  // rejects malformed/unknown tokens at the gate, so this is just a second
-  // indexed lookup, not an additional security check.
+  // middleware is excluded from this route via the matcher (negative
+  // lookahead) because Node middleware locked the request body for multipart
+  // uploads >~1MB. The route does its own ACCESS-01..03 validation:
+  //   1. extractTokenFromPath: shape + alphabet check (no DB)
+  //   2. getClientByToken: indexed unique lookup; null → 401
+  if (!extractTokenFromPath('/c/' + token)) {
+    logger.warn({
+      msg: 'action_error',
+      action: 'uploadAsset',
+      error: 'malformed_token',
+    })
+    return NextResponse.json(
+      { ok: false, error: 'unauthenticated' },
+      { status: 401 },
+    )
+  }
   const client = await getClientByToken(token)
   if (!client) {
     logger.warn({

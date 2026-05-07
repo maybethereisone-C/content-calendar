@@ -191,7 +191,8 @@ vi.mock('@/lib/supabase/server', () => {
 // ----- helpers ------------------------------------------------------------
 
 const VALID_POST_ID = '00000000-0000-0000-0000-000000000010'
-const TOKEN = 'token-xyz'
+// Must satisfy extractTokenFromPath shape check (32-char nanoid alphabet).
+const TOKEN = 'sGjKOGEaFdyZt7Hz1IsCHiyEi81Qrr5X'
 
 async function loadHandler() {
   const mod = await import('@/app/api/c/[token]/post/[id]/asset/route')

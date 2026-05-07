@@ -65,33 +65,15 @@ export async function middleware(req: NextRequest) {
   // NextResponse.next() — these are REQUEST headers forwarded to the route,
   // not RESPONSE headers (which would not reach the route handler).
   //
-  // Plan 02-05 workaround: Next.js 15.5.x has a known bug where Node-runtime
-  // middleware that returns NextResponse.next({ request: { headers } }) on a
-  // multipart POST causes the route handler to throw "Response body object
-  // should not be disturbed or locked" inside framework code
-  // (fromNodeNextRequest). The body gets locked by the request clone.
-  //
-  // For the multipart upload route only, we skip the request-clone path
-  // entirely. The route handler does its own client lookup via
-  // getClientByToken(token) — middleware still runs the token shape + DB
-  // existence check (same defense-in-depth gate), but the route handler
-  // re-resolves the client. Performance impact: one extra Supabase round-trip
-  // per upload (uploads are slow anyway — Sharp pipeline dominates), and
-  // getClientByToken is the same indexed unique lookup the middleware just
-  // did.
-  const isMultipartUpload =
-    method === 'POST' &&
-    /^\/api\/c\/[^/]+\/post\/[^/]+\/asset\/?$/.test(path)
-
-  let res: NextResponse
-  if (isMultipartUpload) {
-    res = NextResponse.next()
-  } else {
-    const forwardedHeaders = new Headers(req.headers)
-    forwardedHeaders.set('x-client-id', client.id)
-    forwardedHeaders.set('x-client-slug', client.slug)
-    res = NextResponse.next({ request: { headers: forwardedHeaders } })
-  }
+  // Plan 02-05 note: the multipart upload route /api/c/<token>/post/<id>/asset
+  // is excluded from this matcher via a negative-lookahead regex (see config
+  // below). Next.js 15.5.x had a body-lock bug for large multipart POSTs
+  // hitting Node middleware. The asset route does its own getClientByToken()
+  // lookup so security is unchanged.
+  const forwardedHeaders = new Headers(req.headers)
+  forwardedHeaders.set('x-client-id', client.id)
+  forwardedHeaders.set('x-client-slug', client.slug)
+  const res = NextResponse.next({ request: { headers: forwardedHeaders } })
 
   const duration_ms = Date.now() - start
   logger.info(
@@ -103,7 +85,19 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Guard /c/* (client pages) and /api/c/* (future API routes — guarded now
-  // so Phase 2 routes are automatically protected without config changes).
-  matcher: ['/c/:path*', '/api/c/:path*'],
+  // Guard /c/* (client pages) and /api/c/* routes EXCEPT the multipart
+  // upload route. Plan 02-05: Next.js 15.5.x has a known bug where Node
+  // middleware locks the request body for large multipart uploads (>~1MB)
+  // before the route can call request.formData(). The route handler does
+  // its own getClientByToken() lookup so security is unchanged — middleware
+  // running on this route only adds the body-lock failure mode without any
+  // additional defense (the token is path-validated in middleware-token.ts
+  // and the route re-validates via getClientByToken).
+  //
+  // Matcher: include all `/c/*` and all `/api/c/*` EXCEPT the asset upload
+  // path (which is excluded via negative lookahead).
+  matcher: [
+    '/c/:path*',
+    '/api/c/((?!.*\\/asset$).*)',
+  ],
 }

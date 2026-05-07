@@ -57,8 +57,11 @@ function html(size) {
 </body></html>`
 }
 
+const APP_DIR = resolve('app')
+
 const browser = await chromium.launch()
 try {
+  // Manifest icons (Chrome/Android/Edge): 192 + 512
   for (const size of [192, 512]) {
     const page = await browser.newPage({ viewport: { width: size, height: size } })
     await page.setContent(html(size), { waitUntil: 'load' })
@@ -68,6 +71,18 @@ try {
     console.log(`  wrote ${out} (${buf.length.toLocaleString()} bytes)`)
     await page.close()
   }
+
+  // Apple touch icon (iOS Safari home-screen): 180x180.
+  // Next.js auto-emits <link rel="apple-touch-icon"> when this file exists at app/apple-icon.png.
+  // iOS does NOT read the manifest icons — apple-touch-icon is the only icon iOS Safari respects.
+  const appleSize = 180
+  const applePage = await browser.newPage({ viewport: { width: appleSize, height: appleSize } })
+  await applePage.setContent(html(appleSize), { waitUntil: 'load' })
+  const appleBuf = await applePage.screenshot({ type: 'png', omitBackground: false })
+  const appleOut = resolve(APP_DIR, `apple-icon.png`)
+  writeFileSync(appleOut, appleBuf)
+  console.log(`  wrote ${appleOut} (${appleBuf.length.toLocaleString()} bytes)`)
+  await applePage.close()
 } finally {
   await browser.close()
 }

@@ -1,0 +1,23 @@
+{
+  "app": {
+    "wordmark": "Content Calendar",
+    "switchToDark": "Switch to dark theme",
+    "switchToLight": "Switch to light theme",
+    "switchToThai": "Switch language to Thai",
+    "switchToEnglish": "Switch language to English"
+  },
+  "calendar": {
+    "emptyState": "Your content calendar will appear here once posts are ready for review."
+  },
+  "post": {
+    "placeholder": "Post details will appear here in the next update.",
+    "backLink": "Calendar"
+  },
+  "offline": {
+    "toast": "No internet connection"
+  },
+  "notFound": {
+    "heading": "Page not found",
+    "body": "The page you're looking for doesn't exist."
+  }
+}

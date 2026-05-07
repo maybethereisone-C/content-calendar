@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+:root {
+  --font-sans: '';
+  --font-thai: '';
+
+  --bg: #F8F9FA;
+  --surface: #FFFFFF;
+  --surface-2: #F1F3F5;
+  --border: #E9ECEF;
+  --text: #212529;
+  --text-mut: #6C757D;
+  --accent: #2563EB;
+  --accent-h: #1D4ED8;
+  --accent-fg: #FFFFFF;
+  --warn: #D97706;
+  --warn-fg: #FFFFFF;
+  --success: #059669;
+  --success-fg: #FFFFFF;
+  --chip-pending-bg: rgba(37,99,235,0.10);
+  --chip-pending-fg: #2563EB;
+  --chip-review-bg: rgba(217,119,6,0.10);
+  --chip-review-fg: #B45309;
+  --chip-scheduled-bg: rgba(5,150,105,0.10);
+  --chip-scheduled-fg: #047857;
+  --chip-published-bg: rgba(108,117,125,0.10);
+  --chip-published-fg: #495057;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 2px 6px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+[data-theme="dark"] {
+  --bg: #0F172A;
+  --surface: #1E293B;
+  --surface-2: #334155;
+  --border: #334155;
+  --text: #F1F5F9;
+  --text-mut: #94A3B8;
+  --accent: #60A5FA;
+  --accent-h: #3B82F6;
+  --accent-fg: #0B1220;
+  --warn: #F59E0B;
+  --warn-fg: #1F1410;
+  --success: #34D399;
+  --success-fg: #052E20;
+  --chip-pending-bg: rgba(96,165,250,0.18);
+  --chip-pending-fg: #93C5FD;
+  --chip-review-bg: rgba(245,158,11,0.18);
+  --chip-review-fg: #FCD34D;
+  --chip-scheduled-bg: rgba(52,211,153,0.18);
+  --chip-scheduled-fg: #6EE7B7;
+  --chip-published-bg: rgba(148,163,184,0.20);
+  --chip-published-fg: #CBD5E1;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow: 0 2px 6px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+html {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-sans), var(--font-thai), system-ui, sans-serif;
+}
+
+/* shadcn -> our canonical names alias (read-only one-way; we don't write to --background) */
+:root {
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface);
+  --popover-foreground: var(--text);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-fg);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-mut);
+  --border: var(--border);
+  --input: var(--border);
+  --ring: var(--accent);
+  --destructive: #ef4444;
+  --radius-md: 10px;
+}

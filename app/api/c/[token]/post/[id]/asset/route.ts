@@ -31,10 +31,10 @@
  *   - T-02-05-11 events tamper: append-only by convention.
  */
 import { NextResponse, type NextRequest } from 'next/server'
-import { headers } from 'next/headers'
 import { nanoid } from 'nanoid'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase/server'
+import { getClientByToken } from '@/lib/supabase/clients'
 import { processPhoto } from '@/lib/photo-pipeline/process'
 import { logger } from '@/lib/logger'
 
@@ -59,9 +59,12 @@ export async function POST(
 
   // Validate path params.
   let postId: string
+  let token: string
   try {
-    const parsed = ParamsSchema.parse(await ctx.params)
+    const params = await ctx.params
+    const parsed = ParamsSchema.parse(params)
     postId = parsed.id
+    token = params.token
   } catch {
     return NextResponse.json(
       { ok: false, error: 'invalid_post_id' },
@@ -69,11 +72,14 @@ export async function POST(
     )
   }
 
-  const h = await headers()
-  const clientId = h.get('x-client-id')
-  const clientSlug = h.get('x-client-slug')
-
-  if (!clientId || !clientSlug) {
+  // Plan 02-05 workaround for Next.js 15.5.x middleware multipart bug:
+  // do not read x-client-id from request.headers (would require the
+  // request-clone path in middleware that locks the multipart body).
+  // Re-resolve the client from the token here. Middleware still runs and
+  // rejects malformed/unknown tokens at the gate, so this is just a second
+  // indexed lookup, not an additional security check.
+  const client = await getClientByToken(token)
+  if (!client) {
     logger.warn({
       msg: 'action_error',
       action: 'uploadAsset',
@@ -84,6 +90,8 @@ export async function POST(
       { status: 401 },
     )
   }
+  const clientId = client.id
+  const clientSlug = client.slug
 
   logger.info({
     msg: 'action_start',

@@ -27,6 +27,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // ----- shared module state ------------------------------------------------
 
 interface MockState {
+  // getClientByToken response (used in place of x-client-id header)
+  clientByTokenResp:
+    | { id: string; slug: string }
+    | null
   // Post fetch (cross-tenant guard)
   postFetchResp: { data: unknown; error: unknown }
   // Sharp pipeline output
@@ -50,10 +54,10 @@ interface MockState {
   insertedAsset: Record<string, unknown> | null
   insertedEvent: Record<string, unknown> | null
   processPhotoCalls: number
-  headerOverride: Headers | null
 }
 
 const mockState: MockState = {
+  clientByTokenResp: { id: 'client-1', slug: 'thai-sea' },
   postFetchResp: { data: null, error: null },
   processPhotoImpl: async () => ({
     jpegBuffer: Buffer.from('FAKEJPEG'),
@@ -70,10 +74,10 @@ const mockState: MockState = {
   insertedAsset: null,
   insertedEvent: null,
   processPhotoCalls: 0,
-  headerOverride: null,
 }
 
 function resetMockState() {
+  mockState.clientByTokenResp = { id: 'client-1', slug: 'thai-sea' }
   mockState.postFetchResp = { data: null, error: null }
   mockState.processPhotoImpl = async () => ({
     jpegBuffer: Buffer.from('FAKEJPEG'),
@@ -90,15 +94,12 @@ function resetMockState() {
   mockState.insertedAsset = null
   mockState.insertedEvent = null
   mockState.processPhotoCalls = 0
-  mockState.headerOverride = null
 }
 
 // ----- mocks --------------------------------------------------------------
 
-vi.mock('next/headers', () => ({
-  headers: async () =>
-    mockState.headerOverride ??
-    new Headers({ 'x-client-id': 'client-1', 'x-client-slug': 'thai-sea' }),
+vi.mock('@/lib/supabase/clients', () => ({
+  getClientByToken: vi.fn(async () => mockState.clientByTokenResp),
 }))
 
 vi.mock('@/lib/logger', () => ({
@@ -334,8 +335,8 @@ describe('POST /api/c/[token]/post/[id]/asset', () => {
     expect(mockState.insertedAsset).toBeNull()
   })
 
-  it('4. missing x-client-id → 401 unauthenticated', async () => {
-    mockState.headerOverride = new Headers() // empty
+  it('4. unknown token (getClientByToken returns null) → 401 unauthenticated', async () => {
+    mockState.clientByTokenResp = null
     const POST = await loadHandler()
     const file = new Blob([new Uint8Array(1024)], { type: 'image/jpeg' })
     const req = await makeFormRequest(file)

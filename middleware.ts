@@ -64,11 +64,34 @@ export async function middleware(req: NextRequest) {
   // without re-querying Supabase.  Use `request: { headers }` form of
   // NextResponse.next() — these are REQUEST headers forwarded to the route,
   // not RESPONSE headers (which would not reach the route handler).
-  const forwardedHeaders = new Headers(req.headers)
-  forwardedHeaders.set('x-client-id', client.id)
-  forwardedHeaders.set('x-client-slug', client.slug)
+  //
+  // Plan 02-05 workaround: Next.js 15.5.x has a known bug where Node-runtime
+  // middleware that returns NextResponse.next({ request: { headers } }) on a
+  // multipart POST causes the route handler to throw "Response body object
+  // should not be disturbed or locked" inside framework code
+  // (fromNodeNextRequest). The body gets locked by the request clone.
+  //
+  // For the multipart upload route only, we skip the request-clone path
+  // entirely. The route handler does its own client lookup via
+  // getClientByToken(token) — middleware still runs the token shape + DB
+  // existence check (same defense-in-depth gate), but the route handler
+  // re-resolves the client. Performance impact: one extra Supabase round-trip
+  // per upload (uploads are slow anyway — Sharp pipeline dominates), and
+  // getClientByToken is the same indexed unique lookup the middleware just
+  // did.
+  const isMultipartUpload =
+    method === 'POST' &&
+    /^\/api\/c\/[^/]+\/post\/[^/]+\/asset\/?$/.test(path)
 
-  const res = NextResponse.next({ request: { headers: forwardedHeaders } })
+  let res: NextResponse
+  if (isMultipartUpload) {
+    res = NextResponse.next()
+  } else {
+    const forwardedHeaders = new Headers(req.headers)
+    forwardedHeaders.set('x-client-id', client.id)
+    forwardedHeaders.set('x-client-slug', client.slug)
+    res = NextResponse.next({ request: { headers: forwardedHeaders } })
+  }
 
   const duration_ms = Date.now() - start
   logger.info(

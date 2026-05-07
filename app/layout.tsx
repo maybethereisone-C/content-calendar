@@ -54,8 +54,10 @@ export default async function RootLayout({
   return (
     // data-theme is intentionally omitted from SSR HTML — the inline FOUC
     // script sets it before paint based on localStorage.theme.
+    // suppressHydrationWarning scopes to this element only (not children) and
+    // exists for exactly this case: client-side attribute mutation before hydration.
     // data-lang mirrors locale for CSS-attribute-driven font selection.
-    <html lang={locale} data-lang={locale}>
+    <html lang={locale} data-lang={locale} suppressHydrationWarning>
       <head>
         {/* THEME-03 / D-30 / FOUC prevention: MUST be the FIRST child of <head>.
             Sets data-theme synchronously from localStorage before any CSS paints.

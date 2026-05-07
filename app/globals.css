@@ -50,6 +50,15 @@
   --toast-error-bg: #FEE2E2;
   --toast-error-fg: #991B1B;
   --toast-error-border: #FCA5A5;
+
+  /* Phase 2 (executor 02-03 / Rule 2 fix): CharCounter threshold text colors.
+     UI-SPEC §CharCounter says >=90% uses --warn-fg and >100% uses --danger-fg
+     for TEXT on neutral bg. But Phase 1's --warn-fg = #FFFFFF (white-on-amber
+     filled-banner semantics for OfflineToast) and --danger-fg doesn't exist.
+     Introduce dedicated counter-warn-text / counter-danger-text aliasing the
+     chip palette (already AA-verified for text-on-neutral-bg). */
+  --counter-warn-text: var(--chip-pending-fg);   /* light: #92400E, dark: #FCD34D */
+  --counter-danger-text: var(--chip-needs-tew-fg); /* light: #991B1B, dark: #FCA5A5 */
 }
 
 [data-theme="dark"] {

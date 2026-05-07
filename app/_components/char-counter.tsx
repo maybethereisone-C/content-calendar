@@ -9,9 +9,15 @@
  * always (per CONTEXT D-11).
  *
  * Color thresholds (per UI-SPEC §CharCounter):
- *   count < limit * 0.9            → --text-mut (default, weight 600)
- *   count >= limit * 0.9 && <=1.0  → --warn-fg  (amber, weight 600)
- *   count > limit                  → --danger-fg (red, weight 700)
+ *   count < limit * 0.9            → --text-mut             (default, weight 600)
+ *   count >= limit * 0.9 && <=1.0  → --counter-warn-text    (amber, weight 600)
+ *   count > limit                  → --counter-danger-text  (red, weight 700)
+ *
+ * Token aliasing note (executor 02-03 Rule 2): UI-SPEC literally writes
+ * `--warn-fg` / `--danger-fg` here, but Phase 1 set `--warn-fg = #FFFFFF`
+ * for filled-button OfflineToast semantics, and `--danger-fg` was never
+ * created. Dedicated counter-* tokens introduced in globals.css aliasing
+ * the AA-verified chip palette to avoid token semantic collision.
  *
  * Channel limits source of truth: lib/channel-limits.ts.
  */
@@ -46,9 +52,9 @@ export function CharCounter({
         const ratio = len / limit
         const color =
           ratio > 1
-            ? 'var(--danger-fg)'
+            ? 'var(--counter-danger-text)'
             : ratio >= 0.9
-              ? 'var(--warn-fg)'
+              ? 'var(--counter-warn-text)'
               : 'var(--text-mut)'
         const weight = ratio > 1 ? 700 : 600
         const isLast = idx === channels.length - 1

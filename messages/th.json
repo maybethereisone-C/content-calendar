@@ -17,7 +17,7 @@
   "status": {
     "pending": "รอตรวจ",
     "approved": "อนุมัติแล้ว",
-    "needsTeam": "รอทีม",
+    "needsTeam": "รอทีมงาน",
     "published": "โพสต์แล้ว"
   },
   "photo": {

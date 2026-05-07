@@ -149,7 +149,7 @@ const CHIP_BADGE_FIXTURE = `<!DOCTYPE html>
     <p>
       <span class="chip" data-status-chip="pending">รอตรวจ</span>
       <span class="chip" data-status-chip="approved">อนุมัติแล้ว</span>
-      <span class="chip" data-status-chip="needs-team">รอทีม</span>
+      <span class="chip" data-status-chip="needs-team">รอทีมงาน</span>
       <span class="chip" data-status-chip="published">โพสต์แล้ว</span>
     </p>
     <p>

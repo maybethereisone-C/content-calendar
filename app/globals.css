@@ -134,3 +134,10 @@ body {
   --destructive: #ef4444;
   --radius-md: 10px;
 }
+
+/* Hide horizontal scrollbar inside the post detail gallery on WebKit.
+   Firefox uses scrollbar-width: none from the inline style. Plan 02-04. */
+[data-gallery-root] > div::-webkit-scrollbar {
+  display: none;
+}
+

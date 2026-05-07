@@ -9,18 +9,13 @@
  * `channel_ids → platforms` via a single batched select and pre-resolves the
  * first-photo public URL via `storage.getPublicUrl()` (no per-card SDK calls).
  *
- * Translation strategy: `chip.labelTh` (รอตรวจ / อนุมัติแล้ว / รอทิว / โพสต์แล้ว)
- * comes from `getStatusChip()` as a verbatim Thai constant — NOT translated
- * via next-intl, per UI-SPEC §"Translation strategy" (same pattern as A2HS).
- *
- * Aria-label encodes "โพสต์วันที่ {date}, สถานะ {label}" so VoiceOver / TalkBack
- * announce both date + status when the card is focused — meets CAL-02 a11y
- * intent without a separate visually-hidden span.
+ * i18n: receives the resolved locale + translated status label + cardAria
+ * template from the parent RSC page (which has access to next-intl/server).
  */
 import Link from 'next/link'
 import Image from 'next/image'
 import { CalendarDays } from 'lucide-react'
-import { formatBangkokDate } from '@/lib/format-date'
+import { formatBangkokDate, type DateLocale } from '@/lib/format-date'
 import { getStatusChip, type PostStatus } from '@/lib/post-status'
 import { CHANNEL_ORDER, type Channel } from '@/lib/channel-limits'
 import { StatusChip } from './status-chip'
@@ -38,16 +33,27 @@ export interface PostCardData {
 export function PostCard({
   token,
   post,
+  locale,
+  statusLabel,
+  ariaTemplate,
+  channelAriaTemplate,
 }: {
   token: string
   post: PostCardData
+  locale: DateLocale
+  /** Localized status label (resolved by the parent via t(`status.${labelKey}`)). */
+  statusLabel: string
+  /** Localized "Post on {date}, status {status}" template, with {date}/{status} placeholders already substituted. */
+  ariaTemplate: string
+  /** Localized "Posts to {platform}" template (factory: pass platform string back). */
+  channelAriaTemplate: (platform: string) => string
 }) {
   const chip = getStatusChip(post.status)
-  // CHANNEL_ORDER preserves the IG/FB/TikTok/X render order regardless of how
-  // the post stored channel_ids — UI-SPEC §"Components / Channel badges".
   const platformsOrdered = CHANNEL_ORDER.filter((c) =>
     post.platforms.includes(c),
   )
+  const fontStack =
+    locale === 'th' ? 'var(--font-thai, inherit)' : 'inherit'
 
   return (
     <Link
@@ -62,7 +68,7 @@ export function PostCard({
         color: 'inherit',
         boxShadow: 'var(--shadow-sm, 0 1px 2px rgba(0,0,0,0.04))',
       }}
-      aria-label={`โพสต์วันที่ ${formatBangkokDate(post.scheduled_for)}, สถานะ ${chip.labelTh}`}
+      aria-label={ariaTemplate}
     >
       {/* Photo hero — fixed 140px tall surface-2 background; centered icon
           fallback when no asset is attached (e.g. caption-only draft). */}
@@ -112,18 +118,22 @@ export function PostCard({
               fontSize: 13,
               fontWeight: 600,
               color: 'var(--text-mut)',
-              fontFamily: 'var(--font-thai, inherit)',
+              fontFamily: fontStack,
             }}
           >
-            {formatBangkokDate(post.scheduled_for)}
+            {formatBangkokDate(post.scheduled_for, locale)}
           </span>
-          <StatusChip variant={chip.variant} label={chip.labelTh} />
+          <StatusChip variant={chip.variant} label={statusLabel} />
         </div>
 
         {platformsOrdered.length > 0 && (
           <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
             {platformsOrdered.map((p) => (
-              <ChannelBadge key={p} platform={p} />
+              <ChannelBadge
+                key={p}
+                platform={p}
+                ariaLabel={channelAriaTemplate(p)}
+              />
             ))}
           </div>
         )}

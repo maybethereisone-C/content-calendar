@@ -16,7 +16,7 @@ describe('splitSections', () => {
     const rows: Row[] = [
       { id: 'a', status: 'pending_review' },
       { id: 'b', status: 'scheduled' },
-      { id: 'c', status: 'needs_tew' },
+      { id: 'c', status: 'needs_team' },
       { id: 'd', status: 'published' },
       { id: 'e', status: 'failed' },
     ]
@@ -32,7 +32,7 @@ describe('splitSections', () => {
       { id: '3', status: 'scheduled' },
       { id: '4', status: 'failed' },
       { id: '5', status: 'published' },
-      { id: '6', status: 'needs_tew' },
+      { id: '6', status: 'needs_team' },
     ]
     const out = splitSections(rows)
     expect(out.needsReview.map((r) => r.id)).toEqual(['2', '4', '6'])
@@ -53,7 +53,7 @@ describe('splitSections', () => {
     const rows: Row[] = [
       { id: 'a', status: 'pending_review' },
       { id: 'b', status: 'failed' },
-      { id: 'c', status: 'needs_tew' },
+      { id: 'c', status: 'needs_team' },
     ]
     const out = splitSections(rows)
     expect(out.needsReview.map((r) => r.id)).toEqual(['a', 'b', 'c'])

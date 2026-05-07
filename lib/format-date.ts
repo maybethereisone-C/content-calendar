@@ -1,55 +1,78 @@
 /**
- * lib/format-date.ts — Bangkok-timezone date formatters (D-01)
+ * lib/format-date.ts — Bangkok-timezone date formatters, locale-aware (D-01).
  *
- * Native `Intl.DateTimeFormat` only — no `date-fns-tz`/`dayjs`/`moment-timezone`.
- *
- * Calendar override: `'th-TH-u-ca-gregory'` forces Gregorian year 2026 instead
- * of the Thai Buddhist default of 2569. Numbering override `-nu-latn` keeps
- * digits Latin so the time portion (`10:00`) renders as Arabic numerals, matching
- * the UI-SPEC.
+ * Native `Intl.DateTimeFormat`. Two locales supported:
+ *   - 'th' → Thai labels with the gregorian-calendar override so the year
+ *     renders as 2026, not 2569 Buddhist Era.
+ *   - 'en' → English labels with `en-GB` (day-month-year order matches the
+ *     Thai layout — `7 May 2026` reads cleanly in either language).
  *
  * Asia/Bangkok is fixed UTC+7 with no DST — boundary math is straightforward.
  */
 
-const SHORT_DATE = new Intl.DateTimeFormat('th-TH-u-ca-gregory', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-  timeZone: 'Asia/Bangkok',
-})
+export type DateLocale = 'en' | 'th'
 
-const DATE_TIME = new Intl.DateTimeFormat('th-TH-u-ca-gregory-nu-latn', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: false,
-  timeZone: 'Asia/Bangkok',
-})
+const FORMATTERS = {
+  date: {
+    en: new Intl.DateTimeFormat('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      timeZone: 'Asia/Bangkok',
+    }),
+    th: new Intl.DateTimeFormat('th-TH-u-ca-gregory', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      timeZone: 'Asia/Bangkok',
+    }),
+  },
+  dateTime: {
+    en: new Intl.DateTimeFormat('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Bangkok',
+    }),
+    th: new Intl.DateTimeFormat('th-TH-u-ca-gregory-nu-latn', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Bangkok',
+    }),
+  },
+} as const
 
-/** Card date stamp (CAL-02). Returns e.g. `"7 พ.ค. 2026"`. */
-export function formatBangkokDate(d: Date | string): string {
-  return SHORT_DATE.format(new Date(d))
+/** Card date stamp (CAL-02). EN: `7 May 2026`. TH: `7 พ.ค. 2026`. */
+export function formatBangkokDate(
+  d: Date | string,
+  locale: DateLocale = 'en',
+): string {
+  return FORMATTERS.date[locale].format(new Date(d))
 }
 
-/** Post detail scheduled time (POST-01). Returns e.g. `"7 พ.ค. 2026 10:00"`. */
-export function formatBangkokDateTime(d: Date | string): string {
-  return DATE_TIME.format(new Date(d))
+/** Post detail scheduled time (POST-01). EN: `7 May 2026, 10:00`. TH: `7 พ.ค. 2026 10:00`. */
+export function formatBangkokDateTime(
+  d: Date | string,
+  locale: DateLocale = 'en',
+): string {
+  return FORMATTERS.dateTime[locale].format(new Date(d))
 }
 
 /**
  * Compute the UTC range that corresponds to "this month in Bangkok".
  * Used by `fetchCalendarPosts` to scope `scheduled_for >= start AND < end`.
- *
- * Returns ISO strings (`Date.toISOString()` format) for direct Supabase use.
  */
 export function getBangkokMonthBounds(now: Date): {
   startUtc: string
   endUtc: string
 } {
-  // Format `now` in Bangkok to extract the local month/year, then compute
-  // the UTC instant that corresponds to 00:00 Bangkok on the 1st.
   const fmt = new Intl.DateTimeFormat('en-CA', {
     year: 'numeric',
     month: '2-digit',

@@ -44,10 +44,10 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const MAX_BYTES = 25 * 1024 * 1024
+// Client renders the user-facing copy via next-intl (`toast.fileTooLarge`).
 const TooLargePayload = {
   ok: false as const,
   error: 'file_too_large' as const,
-  message_th: 'ไฟล์ใหญ่เกินไป (สูงสุด 25 MB)',
 }
 
 const ParamsSchema = z.object({ id: z.string().uuid() })

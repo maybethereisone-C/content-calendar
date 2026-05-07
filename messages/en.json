@@ -1,6 +1,7 @@
 {
   "app": {
     "wordmark": "Content Calendar",
+    "metaDescription": "Review, edit, and approve your social posts before they go live.",
     "switchToDark": "Switch to dark theme",
     "switchToLight": "Switch to light theme",
     "switchToThai": "Switch language to Thai",
@@ -8,29 +9,48 @@
   },
   "calendar": {
     "emptyState": "Your content calendar will appear here once posts are ready for review.",
-    "emptyStateBody": "Tew will prepare posts soon",
-    "sectionNeedsReview": "ต้องตรวจ",
-    "sectionApproved": "อนุมัติแล้ว"
+    "emptyStateBody": "Posts will appear here soon.",
+    "sectionNeedsReview": "Needs review",
+    "sectionApproved": "Approved",
+    "cardAria": "Post on {date}, status {status}"
+  },
+  "status": {
+    "pending": "Awaiting review",
+    "approved": "Approved",
+    "needsTeam": "Awaiting team",
+    "published": "Published"
+  },
+  "photo": {
+    "addLabel": "Add photo",
+    "addUploading": "Uploading {count}…",
+    "fromTeam": "Team",
+    "fromYou": "You",
+    "fromTeamAria": "Photo from team",
+    "fromYouAria": "Photo from you",
+    "deleteAriaLabel": "Delete photo",
+    "deleteConfirmTitle": "Delete this photo?",
+    "deleteConfirmBody": "This permanently removes the photo from this post.",
+    "deleteConfirmPrimary": "Delete",
+    "deleteConfirmCancel": "Cancel",
+    "deleteFailedNotRemovable": "This photo can't be removed.",
+    "deleteFailedGeneric": "Couldn't delete photo. Try again.",
+    "openInBrowser": "Open in browser to upload"
   },
   "post": {
     "placeholder": "Post details will appear here in the next update.",
     "backLink": "Calendar",
     "scheduledFor": "Scheduled for",
     "channels": "Channels",
-    "caption": "Caption"
+    "caption": "Caption",
+    "captionAriaLabel": "Caption"
   },
-  "photo": {
-    "addLabel": "Add photo",
-    "deleteAriaLabel": "Delete photo",
-    "deleteConfirmTitle": "Delete this photo?",
-    "deleteConfirmPrimary": "Delete",
-    "deleteConfirmCancel": "Cancel",
-    "openInBrowser": "Open in browser to upload"
+  "channel": {
+    "ariaLabel": "Posts to {platform}"
   },
   "toast": {
     "saveSuccess": "Saved",
     "saveFailed": "Save failed",
-    "notEditable": "Cannot edit",
+    "notEditable": "Can't edit this post anymore",
     "fileTooLarge": "File too large (max 25 MB)",
     "uploadFailed": "Upload failed"
   },

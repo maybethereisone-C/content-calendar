@@ -8,14 +8,13 @@
  *   - Selected files upload SEQUENTIALLY (D-06: Sharp is single-threaded per call;
  *     parallel uploads on a 1vCPU VPS are catastrophic for memory)
  *   - Per-file spinner overlay shows uploadingCount during in-flight
- *   - Errors render an inline toast banner (Thai); 413 returns the localized message_th
- *     from the API; everything else renders the generic "อัปโหลดไม่สำเร็จ"
- *   - After all uploads, calls router.refresh() so the gallery re-renders with the
- *     new assets
+ *   - Errors render an inline toast (locale via next-intl `toast.*`).
+ *     413 → t('toast.fileTooLarge'); everything else → t('toast.uploadFailed').
+ *   - After all uploads, calls router.refresh() so the gallery re-renders with
+ *     the new assets.
  *   - iOS PWA fallback (D-05): if iosFallbackEnabled prop is true, render an
  *     <a href={iosFallbackUrl} target="_blank"> instead of the button — opens
- *     mobile Safari where <input type=file> is reliably unblocked. Plan 02-01
- *     Task 4-B headed verdict drives the prop; default false until Tew flips.
+ *     mobile Safari where <input type=file> is reliably unblocked.
  *
  * The slot dimensions match the gallery's photoWidth × photoHeight so the layout
  * stays consistent with surrounding photos.
@@ -23,6 +22,7 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations, useLocale } from 'next-intl'
 import { Plus } from 'lucide-react'
 
 export function AddPhotoButton({
@@ -44,6 +44,11 @@ export function AddPhotoButton({
   iosFallbackUrl?: string
   iosFallbackEnabled?: boolean
 }) {
+  const tPhoto = useTranslations('photo')
+  const tToast = useTranslations('toast')
+  const locale = useLocale()
+  const fontStack =
+    locale === 'th' ? 'var(--font-thai, inherit)' : 'inherit'
   const inputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [uploadingCount, setUploadingCount] = useState(0)
@@ -73,20 +78,19 @@ export function AddPhotoButton({
             body: fd,
           },
         )
-        const json: { ok?: boolean; error?: string; message_th?: string } =
-          await res.json().catch(() => ({}))
+        const json: { ok?: boolean; error?: string } = await res
+          .json()
+          .catch(() => ({}))
         if (!res.ok || !json.ok) {
           if (res.status === 413 || json.error === 'file_too_large') {
-            setError(
-              json.message_th ?? 'ไฟล์ใหญ่เกินไป (สูงสุด 25 MB)',
-            )
+            setError(tToast('fileTooLarge'))
           } else {
-            setError('อัปโหลดไม่สำเร็จ')
+            setError(tToast('uploadFailed'))
           }
           break
         }
       } catch {
-        setError('อัปโหลดไม่สำเร็จ')
+        setError(tToast('uploadFailed'))
         break
       } finally {
         setUploadingCount((c) => Math.max(0, c - 1))
@@ -132,12 +136,12 @@ export function AddPhotoButton({
           style={{
             fontSize: 12,
             fontWeight: 600,
-            fontFamily: 'var(--font-thai, inherit)',
+            fontFamily: fontStack,
             textAlign: 'center',
             padding: '0 8px',
           }}
         >
-          เปิดในเบราว์เซอร์เพื่ออัปโหลด
+          {tPhoto('openInBrowser')}
         </span>
       </a>
     )
@@ -149,7 +153,7 @@ export function AddPhotoButton({
         type="button"
         onClick={handleClick}
         disabled={!isPending || uploadingCount > 0}
-        aria-label="เพิ่มรูป"
+        aria-label={tPhoto('addLabel')}
         style={{ ...slotStyle, padding: 0 }}
       >
         {uploadingCount > 0 ? (
@@ -158,10 +162,10 @@ export function AddPhotoButton({
             style={{
               fontSize: 12,
               fontWeight: 600,
-              fontFamily: 'var(--font-thai, inherit)',
+              fontFamily: fontStack,
             }}
           >
-            กำลังอัปโหลด {uploadingCount}…
+            {tPhoto('addUploading', { count: uploadingCount })}
           </span>
         ) : (
           <>
@@ -170,10 +174,10 @@ export function AddPhotoButton({
               style={{
                 fontSize: 12,
                 fontWeight: 600,
-                fontFamily: 'var(--font-thai, inherit)',
+                fontFamily: fontStack,
               }}
             >
-              เพิ่มรูป
+              {tPhoto('addLabel')}
             </span>
           </>
         )}
@@ -202,7 +206,7 @@ export function AddPhotoButton({
             borderLeft: '4px solid var(--counter-danger-text)',
             fontSize: 12,
             fontWeight: 600,
-            fontFamily: 'var(--font-thai, inherit)',
+            fontFamily: fontStack,
           }}
         >
           {error}

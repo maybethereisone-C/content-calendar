@@ -6,7 +6,7 @@
  * Mocks supabaseAdmin (.from + .storage) + next/headers + next/cache:
  *   - Happy path: client_added asset → soft-delete UPDATE returns 1 row →
  *     storage.remove succeeds → events row inserted → { ok: true }
- *   - Tew_prepared rejection: role='tew_prepared' → guarded UPDATE WHERE
+ *   - team_prepared rejection: role='team_prepared' → guarded UPDATE WHERE
  *     role='client_added' returns 0 rows → not_removable; ZERO storage; ZERO events
  *   - Cross-tenant: asset.client_id ≠ x-client-id → not_found; ZERO changes
  *   - Already-deleted: asset.deleted_at IS NOT NULL → not_found (asset fetch
@@ -227,14 +227,14 @@ describe('removeAsset Server Action', () => {
     )
   })
 
-  it('tew_prepared rejection: role=tew_prepared → guarded UPDATE returns 0 rows → not_removable; ZERO storage + ZERO events', async () => {
+  it('team_prepared rejection: role=team_prepared → guarded UPDATE returns 0 rows → not_removable; ZERO storage + ZERO events', async () => {
     mockState.fetchResp = {
       data: {
         id: VALID_ASSET_ID,
         post_id: VALID_POST_ID,
         client_id: 'client-1',
-        role: 'tew_prepared',
-        storage_path: 'client-1/post-x/tew.jpg',
+        role: 'team_prepared',
+        storage_path: 'client-1/post-x/team.jpg',
         deleted_at: null,
       },
       error: null,

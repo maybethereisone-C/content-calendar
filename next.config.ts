@@ -13,7 +13,16 @@ const withSerwist = withSerwistInit({
 const nextConfig: NextConfig = {
   output: 'standalone',
   images: {
-    remotePatterns: [{ protocol: 'https', hostname: '*.supabase.co' }],
+    remotePatterns: [
+      { protocol: 'https', hostname: '*.supabase.co' },
+      // Dev seed only (scripts/seed-calendar.ts uses Unsplash sample URLs).
+      // Real production posts upload through Supabase Storage and resolve to
+      // *.supabase.co. Keeping this in the allow-list is harmless for prod
+      // since middleware token-gates the calendar route (T-02-02-05 mitigated:
+      // attacker can't choose Unsplash URLs without already controlling
+      // post_assets rows server-side).
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+    ],
   },
 }
 

@@ -2,17 +2,24 @@
  * lib/posts/calendar-query.ts — Single-batched calendar feed select (D-10)
  *
  * Per RESEARCH.md Pattern 1: one Supabase call returns posts + nested
- * post_assets (with `aspect_ratio` for the gallery), filtered to the current
- * Bangkok-tz month and ordered by `scheduled_for ASC`. Section split is
- * client-side via `lib/posts/section-split.ts` (no second query).
+ * post_assets, filtered to the current Bangkok-tz month and ordered by
+ * `scheduled_for ASC`. Section split is client-side via
+ * `lib/posts/section-split.ts` (no second query).
  *
  * Soft-deleted assets are filtered post-hoc rather than via the Supabase
  * `.is('post_assets.deleted_at', null)` filter — that filter on a nested
  * select can over-filter parent posts depending on join shape. Filtering
  * client-side is safer and the dataset is small (one client, one month).
  *
- * `aspect_ratio` is added in migration 0002_storage.sql; rows seeded before
- * this migration have NULL — gallery code must default NULL to `'4:5'`.
+ * Aspect ratio note (Plan 02-02 executor, Rule 3 deviation 2026-05-08):
+ *   `post_assets.aspect_ratio` is added in migration 0002_storage.sql, but
+ *   that migration is BLOCKED-AWAITING-TEW (Plan 02-01 SUMMARY). Selecting
+ *   the column against the live DB fails with `42703 column does not exist`,
+ *   blocking the calendar render. The calendar feed only renders the FIRST
+ *   photo with `objectFit: cover` — aspect_ratio is irrelevant here and only
+ *   matters for the swipeable gallery in Plan 02-04. We omit it from the
+ *   SELECT until 0002 lands. The `PostAssetRow.aspect_ratio` type field
+ *   stays for downstream callers (gallery), defaulted to `null` here.
  */
 
 import { supabaseAdmin } from '@/lib/supabase/server'
@@ -54,7 +61,7 @@ export async function fetchCalendarPosts(
     .select(
       `
       id, scheduled_for, status, channel_ids, caption_th,
-      post_assets(id, storage_path, role, sort_order, aspect_ratio, deleted_at)
+      post_assets(id, storage_path, role, sort_order, deleted_at)
     `,
     )
     .eq('client_id', clientId)
@@ -69,8 +76,19 @@ export async function fetchCalendarPosts(
 
   return data.map((p) => ({
     ...p,
-    post_assets: (p.post_assets ?? []).filter(
-      (a: { deleted_at: string | null }) => a.deleted_at === null,
-    ),
+    // Filter soft-deleted post-hoc + default aspect_ratio to null (column
+    // not yet in live DB; see header note).
+    post_assets: (p.post_assets ?? [])
+      .filter(
+        (a: { deleted_at: string | null }) => a.deleted_at === null,
+      )
+      .map(
+        (a: {
+          id: string
+          storage_path: string
+          role: 'tew_prepared' | 'client_added'
+          sort_order: number | null
+        }) => ({ ...a, aspect_ratio: null as '1:1' | '4:5' | null }),
+      ),
   })) as unknown as CalendarPost[]
 }
